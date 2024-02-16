@@ -12,7 +12,10 @@ def update(gs: GameState):
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 # TEMP
-                d_print(f"{gs.movesel.selected_angle() / 3.1415}pi rad")
+                # lost two endgame games in playtesting accidentally because of this 💀
+                # leaving the history here for posterity
+                # d_print(f"{gs.movesel.selected_angle() / 3.1415}pi rad")
+                pass
             elif event.key == pygame.K_DELETE:
                 if len(gs.selected_pieces) != 1:
                     continue
