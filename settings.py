@@ -23,3 +23,6 @@ class PieceSkins:
 
 # EDIT SKIN HERE
 SKIN = PieceSkins.b
+
+# whether a player may select and rotate multiple pieces at once
+CAN_SELECT_MULTIPLE = False

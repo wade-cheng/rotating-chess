@@ -34,6 +34,21 @@ class GameState:
     def canmove(self, only_selected: Piece, point_x: float, point_y: float) -> bool:
         """checks if we can move the only selected piece to point_x, point_y"""
         assert len(self.selected_pieces) == 1
+
+        if only_selected.can_jump:
+            return True
+        
+        # in_the_way: list[Piece] = []
+        # for piece in self.pieces:
+        #     if piece == only_selected:
+        #         continue
+
+        #     if piece in the scalar projection direction is >= 0 but < the max hit distance
+        #     and if piece is less than 2*hitcirclerad away from line:
+        #         in_the_way.append(piece)
+            
+        # if len(in_the_way) > len(pieces overlapping endpoint):
+        #     return False
         
         return True
     

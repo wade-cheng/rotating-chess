@@ -49,8 +49,18 @@ def update(gs: GameState):
                     piece.confirm_preview()
                 gs.selected_pieces.clear()
                 d_print("using keybind to try to click confirm button")
+        elif event.type == pygame.MOUSEBUTTONUP:
+            gs.movesel.selecting = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
+
+            # check if we've started to move the rotation move selector
+            if gs.movesel.is_visible() and gs.movesel.coord_collides(x, y):
+                gs.movesel.selecting = True
+                gs.movesel.select_rotcircle(x, y, gs)
+                continue
+
+            # check and update if we've moved a piece
             moved_piece = False
             if len(gs.selected_pieces) == 1:
                 only_selected = gs.selected_pieces[0]
@@ -67,6 +77,7 @@ def update(gs: GameState):
             if moved_piece:
                 continue
 
+            # check if we've clicked a piece
             for piece in gs.pieces:
                 if piece.coord_collides(x, y):
                     piece.selected = not piece.selected
@@ -79,18 +90,26 @@ def update(gs: GameState):
                         gs.selected_pieces.remove(piece)
                         piece.stop_previewing()
 
+                    if not settings.CAN_SELECT_MULTIPLE and len(gs.selected_pieces) == 2:
+                        gs.selected_pieces[0].selected = False
+                        gs.selected_pieces[0].stop_previewing()
+                        gs.selected_pieces.pop(0)
+                        gs.selected_pieces[0].stop_previewing()
+                        gs.movesel.hide(gs)
+
                     if len(gs.selected_pieces) != 0:
                         gs.movesel.reveal()
                     else:
                         gs.movesel.hide(gs)
 
-    if pygame.mouse.get_pressed()[0]:
+    # if pygame.mouse.get_pressed()[0]:
+    if pygame.mouse.get_pressed()[0] and gs.movesel.selecting:
         x, y = pygame.mouse.get_pos()
-        if gs.movesel.is_visible() and gs.movesel.coord_collides(x, y):
-            gs.movesel.select_rotcircle(x, y, gs)
-            for piece in gs.selected_pieces:
-                piece.update_capture_points()
-                piece.update_move_points()
+        # if gs.movesel.is_visible() and gs.movesel.coord_collides(x, y):
+        gs.movesel.select_rotcircle(x, y, gs)
+        for piece in gs.selected_pieces:
+            piece.update_capture_points()
+            piece.update_move_points()
 
 
 def draw(screen: pygame.Surface, gs: GameState):

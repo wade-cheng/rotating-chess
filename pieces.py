@@ -59,15 +59,14 @@ class Piece:
         # the DAs calculate relative angle; they get self.__angle passed in.
         # the points are only used when only one piece is selected.
         # they are updated using the DAs on init and when we confirm a preview angle (ie update our angle)
+        self.can_jump = False
         self.__capture_DAs: list[DistsAngle] = []
         self.__move_DAs: list[DistsAngle] = []
         self.__capture_points: list[tuple[float, float]] = []
         self.__preview_capture_points: list[tuple[float, float]] | None = None
         self.__move_points: list[tuple[float, float]] = []
         self.__preview_move_points: list[tuple[float, float]] | None = None
-        self.init_DAs()
-        self.__init_capture_points()
-        self.__init_move_points()
+        self.__init()
 
     def coord_collides(self, x: int, y: int) -> bool:
         return (
@@ -252,7 +251,13 @@ class Piece:
         self.__preview_move_points = None
         self.__preview_capture_points = None
 
-    def init_DAs(self):
+    def __init(self):
+        self.__init_movement()
+        self.__init_capture_points()
+        self.__init_move_points()
+
+    def __init_movement(self):
+        """initializes DAs and changes whether the piece can jump from the default"""
         if self.__piece_name == "pawn":
             self.__move_DAs.append(
                 DistsAngle(
@@ -275,6 +280,8 @@ class Piece:
         elif self.__piece_name == "rook":
             self.include_level_DAs()
         elif self.__piece_name == "knight":
+            self.can_jump = True
+
             for rad in [
                 0.4636476090008061,
                 -0.4636476090008061,

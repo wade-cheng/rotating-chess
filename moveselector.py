@@ -17,6 +17,7 @@ class MoveSelector:
         self.__radius: int = radius
         self.__selected_point: tuple[int, int] | None = None
         self.__visible: bool = False
+        self.selecting: bool = False
 
     def draw(self, screen: pygame.Surface):
         if not self.__visible:
