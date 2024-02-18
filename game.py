@@ -3,7 +3,39 @@ import pygame
 from pygame.locals import *
 from gamestate import GameState
 from debug import *
+import pieces
 
+
+# TODO: maybe these try button should be a MoveSelector function? or not.
+def try_cancelbutton(gs: GameState) -> bool:
+    """tries to cancel, returning whether it succeeded"""
+    if not gs.cross_showing:
+        return False
+
+    gs.movesel.hide(gs)
+    for piece in gs.selected_pieces:
+        # according to invariant, this should set all to false.
+        # setting not piece.selected is sorta like verifying invariant
+        piece.selected = not piece.selected
+        piece.stop_previewing()
+    gs.selected_pieces.clear()
+
+    return True
+
+def try_confirmbutton(gs: GameState) -> bool:
+    """tries to confirm, returning whether it succeeded"""
+    if not gs.check_showing:
+        return False
+
+    gs.movesel.hide(gs)
+    for piece in gs.selected_pieces:
+        # according to invariant, this should set all to false.
+        # setting not piece.selected is sorta like verifying invariant
+        piece.selected = not piece.selected
+        piece.confirm_preview()
+    gs.selected_pieces.clear()
+
+    return True
 
 def update(gs: GameState):
     for event in pygame.event.get():
@@ -16,6 +48,13 @@ def update(gs: GameState):
                 # leaving the history here for posterity
                 # d_print(f"{gs.movesel.selected_angle() / 3.1415}pi rad")
                 pass
+            elif event.key == pygame.K_EQUALS:
+                # fmt: off
+                order = ["rook", "knight", "bishop", "queen"]
+                for orderidx, x_pos in enumerate(range(25, 50*len(order), 50)):
+                    gs.pieces.append(pieces.Piece(x_pos, 0, 0, pieces.Side.BLACK, gs.assets[f"piece_{order[orderidx]}B{gs.piece_skin}"], order[orderidx]))
+                    gs.pieces.append(pieces.Piece(x_pos, 400, 0, pieces.Side.WHITE, gs.assets[f"piece_{order[orderidx]}W{gs.piece_skin}"], order[orderidx]))
+                # fmt: on
             elif event.key == pygame.K_DELETE:
                 if len(gs.selected_pieces) != 1:
                     continue
@@ -24,35 +63,28 @@ def update(gs: GameState):
                 gs.pieces.remove(gs.selected_pieces[0])
                 gs.selected_pieces.clear()
             elif event.key == pygame.K_BACKSPACE:
-                # TEMP KEYBIND FOR CANCEL BUTTON
-                if not gs.cross_showing:
+                # KEYBIND FOR CANCEL BUTTON
+                cancelled = try_cancelbutton(gs)
+                if cancelled:
                     continue
-
-                d_print("using keybind to try to click cancel button")
-                gs.movesel.hide(gs)
-                for piece in gs.selected_pieces:
-                    # according to invariant, this should set all to false.
-                    # setting not piece.selected is sorta like verifying invariant
-                    piece.selected = not piece.selected
-                    piece.stop_previewing()
-                gs.selected_pieces.clear()
             elif event.key == pygame.K_RETURN:
-                # TEMP KEYBIND FOR CONFIRM BUTTON
-                if not gs.check_showing:
+                # KEYBIND FOR CONFIRM BUTTON
+                confirmed = try_confirmbutton(gs)
+                if confirmed:
                     continue
-
-                gs.movesel.hide(gs)
-                for piece in gs.selected_pieces:
-                    # according to invariant, this should set all to false.
-                    # setting not piece.selected is sorta like verifying invariant
-                    piece.selected = not piece.selected
-                    piece.confirm_preview()
-                gs.selected_pieces.clear()
-                d_print("using keybind to try to click confirm button")
         elif event.type == pygame.MOUSEBUTTONUP:
             gs.movesel.selecting = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
+
+            # check if we've clicked the cross or check
+            if pygame.Rect(500 - 28, 50, 56, 53).collidepoint(x, y):
+                try_confirmbutton(gs)
+                continue
+            
+            if pygame.Rect(500 - 28, 300, 56, 53).collidepoint(x, y):
+                try_cancelbutton(gs)
+                continue
 
             # check if we've started to move the rotation move selector
             if gs.movesel.is_visible() and gs.movesel.coord_collides(x, y):
@@ -83,12 +115,15 @@ def update(gs: GameState):
                     piece.selected = not piece.selected
                     if piece.selected:
                         gs.cross_showing = True
+                        gs.movesel.reveal()
                         gs.selected_pieces.append(piece)
                         if gs.movesel.get_selected_point() is not None:
                             piece.set_preview_angle(gs.movesel.selected_angle())
                     else:
                         gs.selected_pieces.remove(piece)
                         piece.stop_previewing()
+                        if len(gs.selected_pieces) == 0:
+                            gs.movesel.hide(gs)
 
                     if not settings.CAN_SELECT_MULTIPLE and len(gs.selected_pieces) == 2:
                         gs.selected_pieces[0].selected = False
@@ -96,11 +131,13 @@ def update(gs: GameState):
                         gs.selected_pieces.pop(0)
                         gs.selected_pieces[0].stop_previewing()
                         gs.movesel.hide(gs)
-
-                    if len(gs.selected_pieces) != 0:
+                        gs.cross_showing = True
                         gs.movesel.reveal()
-                    else:
-                        gs.movesel.hide(gs)
+
+                    # if len(gs.selected_pieces) != 0:
+                    #     gs.movesel.reveal()
+                    # else:
+                    #     gs.movesel.hide(gs)
 
     # if pygame.mouse.get_pressed()[0]:
     if pygame.mouse.get_pressed()[0] and gs.movesel.selecting:
