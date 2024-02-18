@@ -4,7 +4,7 @@ A very normal game of chess.
 
 ![normally set up chess board except rotated pawn](dist_assets/cover_image.png)
 
-Check out the example game in `/dist_assets/example_game`.
+Check out example games in `/dist_assets/example_game*`.
 
 ### attributions
 
