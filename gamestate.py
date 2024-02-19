@@ -70,6 +70,15 @@ class GameState:
         self.selected_pieces.pop()
         self.movesel.hide(self)
 
+    def promote(self, piece: Piece):
+        x, y, rad, side = piece.get_x(), piece.get_y(), piece.get_angle(), piece.get_side()
+        self.pieces.remove(piece)
+        if side == Side.BLACK:
+            side_str = "B"
+        elif side == Side.WHITE:
+            side_str = "W"
+        self.pieces.append(Piece(x, y, rad, side, self.assets[f"piece_queen{side_str}{self.piece_skin}"], "queen"))
+
     # fmt: off
     def load_normal_board(self):
         self.pieces.clear()

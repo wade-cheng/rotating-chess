@@ -92,7 +92,7 @@ def update(gs: GameState):
                 gs.movesel.select_rotcircle(x, y, gs)
                 continue
 
-            # check and update if we've moved a piece
+            # check and update if we've moved a piece, promoting as needed
             moved_piece = False
             if len(gs.selected_pieces) == 1:
                 only_selected = gs.selected_pieces[0]
@@ -102,6 +102,9 @@ def update(gs: GameState):
                         < settings.HITCIRCLE_RADIUS ** 2
                     ) and gs.canmove(only_selected, point_x, point_y):
                         gs.move(only_selected, point_x, point_y)
+                        # note: gs.move() already removes the piece from selected, but we still have the pointer.
+                        if only_selected.should_promote():
+                            gs.promote(only_selected)
 
                         moved_piece = True
                         break

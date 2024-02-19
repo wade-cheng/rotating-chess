@@ -83,6 +83,24 @@ class Piece:
 
     def get_y(self) -> float:
         return self.__y
+    
+    def get_angle(self) -> float:
+        return self.__angle
+    
+    def get_side(self) -> int:
+        return self.__side
+    
+    def should_promote(self) -> bool:
+        # board height is 400px, tile height is 50
+        if self.__piece_name != "pawn":
+            return False
+        
+        if self.__side == Side.BLACK:
+            return self.__y + settings.HITCIRCLE_RADIUS > 350
+        if self.__side == Side.WHITE:
+            return self.__y - settings.HITCIRCLE_RADIUS < 50
+        
+        return False
 
     def move(self, x: float, y: float):
         self.__x = x
