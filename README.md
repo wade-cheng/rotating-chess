@@ -12,6 +12,8 @@ chess pieces from: https://opengameart.org/content/chess-pieces-and-a-board
 
 and https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
 
+as required from wikimedia, this work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+
 ### rules
 
 The program allows the movement and rotation of any piece at any time.
