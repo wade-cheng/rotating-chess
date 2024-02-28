@@ -1,3 +1,4 @@
+import random #TEMP
 import settings
 import pygame
 from pygame.locals import *
@@ -48,9 +49,42 @@ def update(gs: GameState):
                 # leaving the history here for posterity
                 # d_print(f"{gs.movesel.selected_angle() / 3.1415}pi rad")
                 pass
+            elif event.key == pygame.K_d:
+                debug_str = input("entered debug mode: ")
+                split_debug: list[str] = debug_str.strip().split()
+                if len(split_debug) == 3 and split_debug[0].lower() == "move":
+                    if len(gs.selected_pieces) != 1:
+                        print("need to have only one selected piece to move it")
+                        continue
+                    try:
+                        x = float(split_debug[1])
+                        y = float(split_debug[2])
+                    except:
+                        print("debug string not formatted as a move")
+                        continue
+
+                    gs.move(gs.selected_pieces[0], x, y)
+                elif len(split_debug) == 1 and (split_debug[0].lower() == "r" or split_debug[0].lower() == "rand"):
+                    p = random.choice(gs.pieces)
+                    while p.get_side() == 2:
+                        p = random.choice(gs.pieces)
+                    p.selected = True
+                    gs.selected_pieces.append(p)
+                elif len(split_debug) == 2 and (split_debug[0].lower() == "rot" or split_debug[0].lower() == "rotate"):
+                    try:
+                        rads = float(split_debug[1])
+                    except:
+                        print("debug string not formatted as a rotate")
+                        continue
+                    
+                    for piece in gs.selected_pieces:
+                        piece.set_preview_angle(rads)
+                        piece.confirm_preview()
+                        piece.update_capture_points()
+                        piece.update_move_points()
             elif event.key == pygame.K_EQUALS:
                 # fmt: off
-                order = ["rook", "knight", "bishop", "queen"]
+                order = ["rook", "knight", "bishop", "queen", "pawn", "king"]
                 for orderidx, x_pos in enumerate(range(25, 50*len(order), 50)):
                     gs.pieces.append(pieces.Piece(x_pos, 0, 0, pieces.Side.BLACK, gs.assets[f"piece_{order[orderidx]}B{gs.piece_skin}"], order[orderidx]))
                     gs.pieces.append(pieces.Piece(x_pos, 400, 0, pieces.Side.WHITE, gs.assets[f"piece_{order[orderidx]}W{gs.piece_skin}"], order[orderidx]))

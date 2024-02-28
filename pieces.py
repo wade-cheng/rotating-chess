@@ -103,6 +103,8 @@ class Piece:
         return False
 
     def move(self, x: float, y: float):
+        print(f"moving {self.__piece_name} x{self.__x} y{self.__y} to x{x} y{y}")
+
         self.__x = x
         self.__y = y
         self.update_capture_points()
@@ -251,6 +253,8 @@ class Piece:
 
     def confirm_preview(self):
         assert self.__preview_angle is not None and self.__preview_image is not None
+
+        print(f"rotating {self.get_x()},{self.get_y()}{self.__piece_name} {self.__angle}rad to {self.__preview_angle}rad")
 
         self.__actual_image = self.__preview_image
         self.__preview_image = None
