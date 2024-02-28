@@ -1,3 +1,4 @@
+import asyncio
 import random #TEMP
 import settings
 import pygame
@@ -227,24 +228,30 @@ def draw(screen: pygame.Surface, gs: GameState):
     pygame.display.update()
 
 
-def main():
+pygame.init()
 
-    pygame.init()
+fps = 60.0
+fpsClock = pygame.time.Clock()
 
-    fps = 60.0
-    fpsClock = pygame.time.Clock()
+screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
+# screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
 
-    screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
-    # screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
+gs: GameState = GameState()
 
-    gs: GameState = GameState()
 
+async def gameloop():
+    global fps
+    global fpsClock
+    global screen
+    global gs
     while gs.playing:
         update(gs)
         draw(screen, gs)
 
         fpsClock.tick(fps)
+        await asyncio.sleep(0)  # Let other tasks run
 
 
-if __name__ == "__main__":
-    main()
+
+asyncio.run(gameloop())
+
