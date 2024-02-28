@@ -6,13 +6,16 @@ A very normal game of chess.
 
 Check out example games in `/dist_assets/example_game*`.
 
+### play
+https://wade-cheng.is-a.dev/rotating-chess/
+
 ### attributions
 
-chess pieces from: https://opengameart.org/content/chess-pieces-and-a-board
+Chess pieces from https://opengameart.org/content/chess-pieces-and-a-board
 
-and https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
+and https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces.
 
-as required from wikimedia, this work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+As required from wikimedia, this work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
 
 ### rules
 
@@ -28,6 +31,6 @@ The following ruleset is currently recommended:
 
 This pygame game is developed on Python 3.10.12. There is a `__future__` import for type checking in `moveselector.py`. 
 
-Start the game by calling `python3 game.py`.
+See `BUILD.md` for more build options.
 
 Colors and some other settings may be edited with a text editor via `settings.py`.
