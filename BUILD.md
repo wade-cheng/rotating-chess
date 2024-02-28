@@ -10,5 +10,7 @@ build for wasm: `pygbag --build .` (omit `--build` to automatically host on loca
 
 run wasm: `python3 -m http.server 8000` from directory with `index.html`
 
+update filesystem for github pages: `cp -r build/web docs`
+
 ### python source
 `python3 main.py`
