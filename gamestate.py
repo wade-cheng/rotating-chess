@@ -7,7 +7,6 @@ import settings
 from settings import PieceSkins
 
 
-
 class GameState:
     def __init__(self) -> None:
         self.playing: bool = True
@@ -16,7 +15,9 @@ class GameState:
         # loading assets
         self.assets: dict[str, pygame.Surface] = dict()
         for file in os.listdir("assets"):
-            self.assets[file.removesuffix(".png").removesuffix(".svg")] = pygame.image.load(f"assets/{file}")
+            self.assets[
+                file.removesuffix(".png").removesuffix(".svg")
+            ] = pygame.image.load(f"assets/{file}")
         print(f"loaded assets:\n{self.assets.keys()}")
 
         self.piece_skin: str = settings.SKIN
@@ -35,9 +36,19 @@ class GameState:
         """checks if we can move the only selected piece to point_x, point_y"""
         assert len(self.selected_pieces) == 1
 
+        # disallow capturing own side
+        for piece in self.pieces:
+            if piece == only_selected:
+                continue
+
+            if piece.get_side() == only_selected.get_side() and piece.piece_collides(
+                point_x, point_y
+            ):
+                return False
+
         if only_selected.can_jump:
             return True
-        
+
         # in_the_way: list[Piece] = []
         # for piece in self.pieces:
         #     if piece == only_selected:
@@ -46,12 +57,12 @@ class GameState:
         #     if piece in the scalar projection direction is >= 0 but < the max hit distance
         #     and if piece is less than 2*hitcirclerad away from line:
         #         in_the_way.append(piece)
-            
+
         # if len(in_the_way) > len(pieces overlapping endpoint):
         #     return False
-        
+
         return True
-    
+
     def move(self, only_selected: Piece, point_x: float, point_y: float):
         """moves only_selected to x,y, capturing any overlapping pieces"""
         assert len(self.selected_pieces) == 1
@@ -61,7 +72,7 @@ class GameState:
         for piece in self.pieces:
             if piece == only_selected:
                 continue
-            
+
             if only_selected.piece_collides(piece.get_x(), piece.get_y()):
                 self.pieces.remove(piece)
 
@@ -71,13 +82,27 @@ class GameState:
         self.movesel.hide(self)
 
     def promote(self, piece: Piece):
-        x, y, rad, side = piece.get_x(), piece.get_y(), piece.get_angle(), piece.get_side()
+        x, y, rad, side = (
+            piece.get_x(),
+            piece.get_y(),
+            piece.get_angle(),
+            piece.get_side(),
+        )
         self.pieces.remove(piece)
         if side == Side.BLACK:
             side_str = "B"
         elif side == Side.WHITE:
             side_str = "W"
-        self.pieces.append(Piece(x, y, rad, side, self.assets[f"piece_queen{side_str}{self.piece_skin}"], "queen"))
+        self.pieces.append(
+            Piece(
+                x,
+                y,
+                rad,
+                side,
+                self.assets[f"piece_queen{side_str}{self.piece_skin}"],
+                "queen",
+            )
+        )
 
     # fmt: off
     def load_normal_board(self):
