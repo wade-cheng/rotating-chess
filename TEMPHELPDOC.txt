@@ -1,0 +1,20 @@
+impl chess back and forward buttons:
+
+let ReversedList be a container type that pushes and pops from the "front" such that the front is index 0
+
+let boards: ReversedList[Board] = ReversedList()
+
+draw_idx = 0
+on draw calls, draw the board at boards[draw_idx]
+0 is the present, 1 is 1 turn in the past, and so on
+
+every new turn, we pop draw_idx items from the front via a for loop and then push the new board to the front of the ReversedList
+
+if we "forward," we just try to decrement draw_idx, not letting it go below 0.
+if we "backward," we increment, not letting it go above boards.len() or w/e
+
+ALTERNATIVELY LITERALLY JUST USE A NORMAL LIST AND NEGATIVELY INDEX :p
+
+
+
+https://freesound.org/people/BiancaBothaPure/sounds/437486/ https://freesound.org/people/180118/sounds/442887/
