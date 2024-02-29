@@ -47,3 +47,4 @@ coll = COLLECT(
 
 import shutil
 shutil.move("dist/main/_internal/assets", "dist/main/")  
+shutil.move("dist/main/_internal/README.md", "dist/main/")  
