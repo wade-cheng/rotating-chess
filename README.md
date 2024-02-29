@@ -31,6 +31,6 @@ The following ruleset is currently recommended:
 
 This pygame game is developed on Python 3.10.12. There is a `__future__` import for type checking in `moveselector.py`. 
 
-See `BUILD.md` for more build options.
+Locally start the game by calling `python3 main.py`. See the `Makefile` for build options.
 
 Colors and some other settings may be edited with a text editor via `settings.py`.
