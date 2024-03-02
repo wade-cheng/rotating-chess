@@ -228,30 +228,21 @@ def draw(screen: pygame.Surface, gs: GameState):
     pygame.display.update()
 
 
-pygame.init()
+async def main():
+    pygame.init()
 
-fps = 60.0
-fpsClock = pygame.time.Clock()
+    screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
+    # screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
 
-screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
-# screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
-
-gs: GameState = GameState()
-
-
-async def gameloop():
-    global fps
-    global fpsClock
-    global screen
-    global gs
+    gs: GameState = GameState()
+    
     while gs.playing:
         update(gs)
         draw(screen, gs)
 
-        fpsClock.tick(fps)
         await asyncio.sleep(0)  # Let other tasks run
 
 
-
-asyncio.run(gameloop())
+# async code such that pygbag can compile to wasm
+asyncio.run(main())
 
