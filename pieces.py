@@ -281,6 +281,7 @@ class Piece:
     def __init_movement(self):
         """initializes DAs and changes whether the piece can jump from the default"""
         if self.__piece_name == "pawn":
+            self.can_jump = True
             self.__move_DAs.append(
                 DistsAngle(
                     [50, 100],
@@ -327,6 +328,7 @@ class Piece:
             self.include_level_DAs()
             self.include_diagonal_DAs()
         elif self.__piece_name == "king":
+            self.can_jump = True
             for rad in [math.pi / -2, 0, math.pi / 2, math.pi, 3 * math.pi / 2]:
                 self.__capture_DAs.append(
                     DistsAngle(

@@ -7,6 +7,47 @@ import settings
 from settings import PieceSkins
 
 
+def max_hit_distance(
+    start_x: float, start_y: float, end_x: float, end_y: float
+) -> float:
+    """simple distance formula + hitcirclerad"""
+    return (
+        math.sqrt((start_x - end_x) ** 2 + (start_y - end_y) ** 2)
+        + settings.HITCIRCLE_RADIUS
+    )
+
+
+def distance(
+    start_x: float,
+    start_y: float,
+    end_x: float,
+    end_y: float,
+    point_x: float,
+    point_y: float,
+) -> float:
+    """finds the distance from a point to a line, where the line is given by two points"""
+    return abs(
+        (end_x - start_x) * (point_y - start_y)
+        - (point_x - start_x) * (end_y - start_y)
+    ) / math.sqrt((end_x - start_x) ** 2 + (end_y - start_y) ** 2)
+
+
+def scalar_comp(
+    start_x: float,
+    start_y: float,
+    point_x: float,
+    point_y: float,
+    dir_x: float,
+    dir_y: float,
+) -> float:
+    """finds the scalar composition of vectors point in the direction of dir where the vectors have starting point start"""
+    # scalar comp of v in the direction of u: we find u dot v / magn(u)
+    u = [dir_x - start_x, dir_y - start_y]
+    v = [point_x - start_x, point_y - start_y]
+
+    return (u[0] * v[0] + u[1] * v[1]) / math.sqrt(u[0] ** 2 + u[1] ** 2)
+
+
 class GameState:
     def __init__(self) -> None:
         self.playing: bool = True
@@ -15,9 +56,9 @@ class GameState:
         # loading assets
         self.assets: dict[str, pygame.Surface] = dict()
         for file in os.listdir("assets"):
-            self.assets[
-                file.removesuffix(".png").removesuffix(".svg")
-            ] = pygame.image.load(f"assets/{file}")
+            self.assets[file.removesuffix(".png").removesuffix(".svg")] = (
+                pygame.image.load(f"assets/{file}")
+            )
         print(f"loaded assets:\n{self.assets.keys()}")
 
         self.piece_skin: str = settings.SKIN
@@ -36,28 +77,59 @@ class GameState:
         """checks if we can move the only selected piece to point_x, point_y"""
         assert len(self.selected_pieces) == 1
 
-        # disallow capturing own side
+        pieces_overlapping_endpoint = 0
+
+        # disallow capturing own side. also update how many pieces overlap the endpoint
         for piece in self.pieces:
             if piece == only_selected:
                 continue
 
-            if piece.get_side() == only_selected.get_side() and piece.piece_collides(
-                point_x, point_y
-            ):
-                return False
+            if piece.piece_collides(point_x, point_y):
+                pieces_overlapping_endpoint += 1
+
+                if piece.get_side() == only_selected.get_side():
+                    return False
 
         if only_selected.can_jump:
             return True
 
-        # in_the_way: list[Piece] = []
-        # for piece in self.pieces:
-        #     if piece == only_selected:
-        #         continue
+        in_the_way: int = 0
+        for piece in self.pieces:
+            if piece == only_selected:
+                continue
 
+            if (
+                0
+                < scalar_comp(
+                    only_selected.get_x(),
+                    only_selected.get_y(),
+                    piece.get_x(),
+                    piece.get_y(),
+                    point_x,
+                    point_y,
+                )
+                < max_hit_distance(
+                    only_selected.get_x(), only_selected.get_y(), point_x, point_y
+                )
+            ):
+                # piece is within correct distance to block. now check:
+                if distance(
+                    only_selected.get_x(),
+                    only_selected.get_y(),
+                    point_x,
+                    point_y,
+                    piece.get_x(),
+                    piece.get_y(),
+                ) < 2 * settings.HITCIRCLE_RADIUS:
+                    # piece is within correct point to line distance to block. we may be blocked unless we can capture this piece.
+                    in_the_way += 1
         #     if piece in the scalar projection direction is >= 0 but < the max hit distance
         #     and if piece is less than 2*hitcirclerad away from line:
         #         in_the_way.append(piece)
 
+        print(f"inway: {in_the_way}, overlaps: {pieces_overlapping_endpoint}")
+        if in_the_way > pieces_overlapping_endpoint:
+            return False
         # if len(in_the_way) > len(pieces overlapping endpoint):
         #     return False
 
@@ -130,3 +202,10 @@ class GameState:
             self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin}"], order[orderidx]))
             self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin}"], order[orderidx]))
     # fmt: on
+
+
+if __name__ == "__main__":
+    print(f"d={distance(0,0, 10,0, 4,3)}")
+    print(f"d={distance(2,0, 0,2, 0,0)}")
+
+    print(f"comp={scalar_comp(1,1, 5,5, 5,1)}")
