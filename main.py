@@ -1,11 +1,16 @@
 import asyncio
-import random #TEMP
+import random  # TEMP
 import settings
 import pygame
 from pygame.locals import *
 from gamestate import GameState
 from debug import *
 import pieces
+
+import sys, platform
+
+if sys.platform == "emscripten":
+    platform.window.canvas.style.imageRendering = "pixelated"
 
 
 # TODO: maybe these try button should be a MoveSelector function? or not.
@@ -24,6 +29,7 @@ def try_cancelbutton(gs: GameState) -> bool:
 
     return True
 
+
 def try_confirmbutton(gs: GameState) -> bool:
     """tries to confirm, returning whether it succeeded"""
     if not gs.check_showing:
@@ -38,6 +44,7 @@ def try_confirmbutton(gs: GameState) -> bool:
     gs.selected_pieces.clear()
 
     return True
+
 
 def update(gs: GameState):
     for event in pygame.event.get():
@@ -65,19 +72,24 @@ def update(gs: GameState):
                         continue
 
                     gs.move(gs.selected_pieces[0], x, y)
-                elif len(split_debug) == 1 and (split_debug[0].lower() == "r" or split_debug[0].lower() == "rand"):
+                elif len(split_debug) == 1 and (
+                    split_debug[0].lower() == "r" or split_debug[0].lower() == "rand"
+                ):
                     p = random.choice(gs.pieces)
                     while p.get_side() == 2:
                         p = random.choice(gs.pieces)
                     p.selected = True
                     gs.selected_pieces.append(p)
-                elif len(split_debug) == 2 and (split_debug[0].lower() == "rot" or split_debug[0].lower() == "rotate"):
+                elif len(split_debug) == 2 and (
+                    split_debug[0].lower() == "rot"
+                    or split_debug[0].lower() == "rotate"
+                ):
                     try:
                         rads = float(split_debug[1])
                     except:
                         print("debug string not formatted as a rotate")
                         continue
-                    
+
                     for piece in gs.selected_pieces:
                         piece.set_preview_angle(rads)
                         piece.confirm_preview()
@@ -116,7 +128,7 @@ def update(gs: GameState):
             if pygame.Rect(500 - 28, 50, 56, 53).collidepoint(x, y):
                 try_confirmbutton(gs)
                 continue
-            
+
             if pygame.Rect(500 - 28, 300, 56, 53).collidepoint(x, y):
                 try_cancelbutton(gs)
                 continue
@@ -163,7 +175,10 @@ def update(gs: GameState):
                         if len(gs.selected_pieces) == 0:
                             gs.movesel.hide(gs)
 
-                    if not settings.CAN_SELECT_MULTIPLE and len(gs.selected_pieces) == 2:
+                    if (
+                        not settings.CAN_SELECT_MULTIPLE
+                        and len(gs.selected_pieces) == 2
+                    ):
                         gs.selected_pieces[0].selected = False
                         gs.selected_pieces[0].stop_previewing()
                         gs.selected_pieces.pop(0)
@@ -235,14 +250,15 @@ async def main():
     # screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
 
     gs: GameState = GameState()
-    
+    clock = pygame.time.Clock()
+
     while gs.playing:
         update(gs)
         draw(screen, gs)
 
+        clock.tick(60)
         await asyncio.sleep(0)  # Let other tasks run
 
 
 # async code such that pygbag can compile to wasm
 asyncio.run(main())
-
