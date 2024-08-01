@@ -5,9 +5,10 @@ from pygame.locals import *
 from debug import *
 import itertools
 import copy
+from enum import Enum
 
 
-class Side:
+class Side(Enum):
     BLACK = 1
     WHITE = 2
 
@@ -38,7 +39,7 @@ class Piece:
         x: float,
         y: float,
         angle: float,
-        side: int,
+        side: Side,
         img: pygame.Surface,
         piece_name: str,
     ):
@@ -87,7 +88,7 @@ class Piece:
     def get_angle(self) -> float:
         return self.__angle
 
-    def get_side(self) -> int:
+    def get_side(self) -> Side:
         return self.__side
 
     def should_promote(self) -> bool:

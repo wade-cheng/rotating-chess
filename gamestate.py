@@ -4,7 +4,6 @@ import os
 import random
 import math
 import settings
-from settings import PieceSkins
 import copy
 
 
@@ -62,7 +61,7 @@ class GameState:
             ] = pygame.image.load(f"assets/{file}")
         print(f"loaded assets:\n{self.assets.keys()}")
 
-        self.piece_skin: str = settings.SKIN
+        self.piece_skin: settings.PieceSkin = settings.SKIN
         self.pieces: list[Piece] = []
         # invariant: forall Piece in selected_pieces, Piece.selected
         # invariant: forall Piece not in selected_pieces, not Piece.selected
