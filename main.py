@@ -323,8 +323,6 @@ def draw(screen: pygame.Surface, gs: GameState):
             gs.assets["nav_last"], (400 + offset + f_width + p_width + n_width, 300)
         )
 
-    pygame.draw.circle(screen, (255, 255, 255), (400, 300), radius=3, width=1)
-
     pygame.display.update()
 
 
