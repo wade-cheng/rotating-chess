@@ -158,11 +158,15 @@ def update(gs: GameState):
                 f_width, p_width, n_width, l_width = 58, 37, 41, 54
                 nav_height = 53
 
-                if pygame.Rect(400 + offset, 300, nav_height, f_width).collidepoint(x, y):
+                if pygame.Rect(400 + offset, 300, nav_height, f_width).collidepoint(
+                    x, y
+                ):
                     try_nav_first(gs)
                     continue
 
-                if pygame.Rect(400 + offset + f_width, 300, nav_height, p_width).collidepoint(x, y):
+                if pygame.Rect(
+                    400 + offset + f_width, 300, nav_height, p_width
+                ).collidepoint(x, y):
                     try_nav_prev(gs)
                     continue
 

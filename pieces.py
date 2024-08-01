@@ -68,12 +68,12 @@ class Piece:
         self.__preview_move_points: list[tuple[float, float]] | None = None
         self.__init()
 
-    def coord_collides(self, x: int, y: int) -> bool:
+    def coord_collides(self, x: float, y: float) -> bool:
         return (
             (x - self.__x) ** 2 + (y - self.__y) ** 2
         ) < settings.HITCIRCLE_RADIUS ** 2
 
-    def piece_collides(self, x: int, y: int) -> bool:
+    def piece_collides(self, x: float, y: float) -> bool:
         return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < (
             settings.HITCIRCLE_RADIUS * 2
         ) ** 2
@@ -83,23 +83,23 @@ class Piece:
 
     def get_y(self) -> float:
         return self.__y
-    
+
     def get_angle(self) -> float:
         return self.__angle
-    
+
     def get_side(self) -> int:
         return self.__side
-    
+
     def should_promote(self) -> bool:
         # board height is 400px, tile height is 50
         if self.__piece_name != "pawn":
             return False
-        
+
         if self.__side == Side.BLACK:
             return self.__y + settings.HITCIRCLE_RADIUS > 350
         if self.__side == Side.WHITE:
             return self.__y - settings.HITCIRCLE_RADIUS < 50
-        
+
         return False
 
     def move(self, x: float, y: float):
@@ -190,6 +190,7 @@ class Piece:
         if self.__preview_angle is None and self.__preview_image is None:
             screen.blit(self.__actual_image, (self.__x - 26, self.__y - 26))
         else:
+            assert self.__preview_image is not None
             screen.blit(self.__preview_image, (self.__x - 26, self.__y - 26))
 
     def draw_hitcircle(self, screen: pygame.Surface):
@@ -254,7 +255,9 @@ class Piece:
     def confirm_preview(self):
         assert self.__preview_angle is not None and self.__preview_image is not None
 
-        print(f"rotating {self.get_x()},{self.get_y()}{self.__piece_name} {self.__angle}rad to {self.__preview_angle}rad")
+        print(
+            f"rotating {self.get_x()},{self.get_y()}{self.__piece_name} {self.__angle}rad to {self.__preview_angle}rad"
+        )
 
         self.__actual_image = self.__preview_image
         self.__preview_image = None

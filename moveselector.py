@@ -7,8 +7,10 @@ import math
 # gamestate is a circular import
 # this block and __future__'s annotations fixes type checking
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from gamestate import GameState
+
 
 class MoveSelector:
     def __init__(self, center: tuple[int, int], radius: int):
@@ -55,7 +57,7 @@ class MoveSelector:
         gs.check_showing = True
 
         self.__selected_point = (x, y)
-        
+
         theta: float = self.selected_angle()
         for piece in gs.selected_pieces:
             piece.set_preview_angle(theta)
@@ -70,6 +72,6 @@ class MoveSelector:
         # not sure why this is opposite of the convention that I know of but whatever, I can just invert it
         # NOTE: it was because I forgot pygame considers positive x to be facing "down." whoops.
         return -1 * math.atan2(y, x)
-    
+
     def get_selected_point(self) -> tuple[int, int] | None:
         return self.__selected_point

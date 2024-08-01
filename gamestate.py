@@ -56,9 +56,9 @@ class GameState:
         # loading assets
         self.assets: dict[str, pygame.Surface] = dict()
         for file in os.listdir("assets"):
-            self.assets[file.removesuffix(".png").removesuffix(".svg")] = (
-                pygame.image.load(f"assets/{file}")
-            )
+            self.assets[
+                file.removesuffix(".png").removesuffix(".svg")
+            ] = pygame.image.load(f"assets/{file}")
         print(f"loaded assets:\n{self.assets.keys()}")
 
         self.piece_skin: str = settings.SKIN
@@ -113,14 +113,17 @@ class GameState:
                 )
             ):
                 # piece is within correct distance to block. now check:
-                if distance(
-                    only_selected.get_x(),
-                    only_selected.get_y(),
-                    point_x,
-                    point_y,
-                    piece.get_x(),
-                    piece.get_y(),
-                ) < 2 * settings.HITCIRCLE_RADIUS:
+                if (
+                    distance(
+                        only_selected.get_x(),
+                        only_selected.get_y(),
+                        point_x,
+                        point_y,
+                        piece.get_x(),
+                        piece.get_y(),
+                    )
+                    < 2 * settings.HITCIRCLE_RADIUS
+                ):
                     # piece is within correct point to line distance to block. we may be blocked unless we can capture this piece.
                     in_the_way += 1
         #     if piece in the scalar projection direction is >= 0 but < the max hit distance
