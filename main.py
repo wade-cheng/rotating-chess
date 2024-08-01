@@ -13,20 +13,28 @@ if sys.platform == "emscripten":
     platform.window.canvas.style.imageRendering = "pixelated"
 
 
-def try_nav_first(gs):
+def try_nav_first(gs: GameState):
     print("clicked try_nav_first")
+    gs.nav.first()
+    gs.nav.update_state(gs)
 
 
-def try_nav_prev(gs):
+def try_nav_prev(gs: GameState):
     print("clicked try_nav_prev")
+    gs.nav.prev()
+    gs.nav.update_state(gs)
 
 
-def try_nav_next(gs):
+def try_nav_next(gs: GameState):
     print("clicked try_nav_next")
+    gs.nav.next()
+    gs.nav.update_state(gs)
 
 
-def try_nav_last(gs):
+def try_nav_last(gs: GameState):
     print("clicked try_nav_last")
+    gs.nav.last()
+    gs.nav.update_state(gs)
 
 
 # TODO: maybe these try button should be a MoveSelector function? or not.
@@ -58,6 +66,8 @@ def try_confirmbutton(gs: GameState) -> bool:
         piece.selected = not piece.selected
         piece.confirm_preview()
     gs.selected_pieces.clear()
+
+    gs.nav.record_turn(gs.pieces)
 
     return True
 
@@ -215,6 +225,7 @@ def update(gs: GameState):
                         break
 
             if moved_piece:
+                gs.nav.record_turn(gs.pieces)
                 continue
 
             # check if we've clicked a piece

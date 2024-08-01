@@ -5,6 +5,7 @@ import random
 import math
 import settings
 from settings import PieceSkins
+import copy
 
 
 def max_hit_distance(
@@ -72,6 +73,8 @@ class GameState:
 
         # self.load_chess_960()
         self.load_normal_board()
+
+        self.nav: TurnNavigation = TurnNavigation(self.pieces)
 
     def canmove(self, only_selected: Piece, point_x: float, point_y: float) -> bool:
         """checks if we can move the only selected piece to point_x, point_y"""
@@ -205,6 +208,64 @@ class GameState:
             self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin}"], order[orderidx]))
             self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin}"], order[orderidx]))
     # fmt: on
+
+
+class TurnNavigation:
+    def __init__(self, pieces: list[Piece]) -> None:
+        self.__turns = [copy.deepcopy(pieces)]
+        self.__curr_turn = 0
+
+    def __len__(self) -> int:
+        return len(self.__turns)
+
+    def record_turn(self, pieces: list[Piece]) -> None:
+        self.__turns = self.__turns[0 : self.__curr_turn + 1]
+        self.__turns.append(copy.deepcopy(pieces))
+        self.__curr_turn += 1
+
+    def update_state(self, gs: GameState):
+        gs.pieces = copy.deepcopy(self.__turns[self.__curr_turn])
+
+    def first(self) -> None:
+        """presses first button. may or may not be a noop"""
+        pass
+
+    def first_noop(self) -> bool:
+        """returns True if first is a noop"""
+        return self.__curr_turn == 0
+
+    def prev(self) -> None:
+        """presses prev button. may or may not be a noop"""
+        if not self.prev_noop():
+            self.__curr_turn -= 1
+
+    def prev_noop(self) -> bool:
+        """returns True if prev is a noop"""
+        return self.__curr_turn == 0
+
+    def next(self) -> None:
+        """presses next button. may or may not be a noop"""
+        if not self.next_noop():
+            self.__curr_turn += 1
+
+    def next_noop(self) -> bool:
+        """returns True if next is a noop"""
+        return self.__curr_turn == self.__len__() - 1
+
+    def last(self) -> None:
+        """presses last button. may or may not be a noop"""
+        self.__curr_turn = self.__len__() - 1
+
+    def last_noop(self) -> bool:
+        """returns True if last is a noop"""
+        return self.__curr_turn == self.__len__() - 1
+
+    def go_to(self, turn: int):
+        assert 0 <= turn < self.__len__()
+        self.__curr_turn = turn
+
+    def get_curr_turn(self) -> list[Piece]:
+        return copy.deepcopy(self.__turns[self.__curr_turn])
 
 
 if __name__ == "__main__":
