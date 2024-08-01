@@ -176,7 +176,7 @@ class GameState:
                 y,
                 rad,
                 side,
-                self.assets[f"piece_queen{side_str}{self.piece_skin}"],
+                self.assets[f"piece_queen{side_str}{self.piece_skin.value}"],
                 "queen",
             )
         )
@@ -185,27 +185,27 @@ class GameState:
     def load_normal_board(self):
         self.pieces.clear()
         for x_pos in range(25, 50*8, 50):
-            self.pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin}"], "pawn"))
-            self.pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, self.assets[f"piece_pawnW{self.piece_skin}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, self.assets[f"piece_pawnW{self.piece_skin.value}"], "pawn"))
 
         order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
         for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
-            self.pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin}"], order[orderidx]))
-            self.pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin.value}"], order[orderidx]))
     # fmt: on
 
     # fmt: off
     def load_chess_960(self):
         self.pieces.clear()
         for x_pos in range(25, 50*8, 50):
-            self.pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin}"], "pawn"))
-            self.pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_pawnW{self.piece_skin}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_pawnW{self.piece_skin.value}"], "pawn"))
 
         order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
         random.shuffle(order)
         for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
-            self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin}"], order[orderidx]))
-            self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin.value}"], order[orderidx]))
     # fmt: on
 
 
