@@ -1,4 +1,6 @@
-<html lang="en-us"><script src="https://pygame-web.github.io/archives/0.8/pythons.js" type=module id=site data-LINES={{cookiecutter.LINES}} data-CONSOLE={{cookiecutter.CONSOLE}} data-python=python3.11 data-os=vtx,fs,snd,gui async defer>#<!--
+<html lang="en-us">
+
+<script src="https://pygame-web.github.io/archives/0.8/pythons.js" type=module id=site data-LINES={{cookiecutter.LINES}} data-CONSOLE={{cookiecutter.CONSOLE}} data-python=python3.11 data-os=vtx,fs,snd,gui async defer>#<!--
 
 print("""
 Loading rotating-chess from rotating-chess.apk
@@ -482,6 +484,15 @@ frameborder="1"
     }
 
     </script>
-
+<div id="loading_notice" style="color:white; font-size: 6em">LOADING... GIVE IT A SEC</div>
+<script>
+let clicked = false;
+document.addEventListener('click', function() {
+    if (!clicked) {
+        document.getElementById('loading_notice').remove();
+        clicked = true;
+    }
+});
+</script>
 </body>
 </html>
