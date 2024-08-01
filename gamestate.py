@@ -228,7 +228,7 @@ class TurnNavigation:
 
     def first(self) -> None:
         """presses first button. may or may not be a noop"""
-        pass
+        self.__curr_turn = 0
 
     def first_noop(self) -> bool:
         """returns True if first is a noop"""
