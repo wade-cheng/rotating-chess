@@ -329,8 +329,8 @@ def draw(screen: pygame.Surface, gs: GameState):
 async def main():
     pygame.init()
 
-    screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
-    # screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
+    # screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
+    screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
 
     gs: GameState = GameState()
     clock = pygame.time.Clock()
