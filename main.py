@@ -13,6 +13,22 @@ if sys.platform == "emscripten":
     platform.window.canvas.style.imageRendering = "pixelated"
 
 
+def try_nav_first(gs):
+    print("clicked try_nav_first")
+
+
+def try_nav_prev(gs):
+    print("clicked try_nav_prev")
+
+
+def try_nav_next(gs):
+    print("clicked try_nav_next")
+
+
+def try_nav_last(gs):
+    print("clicked try_nav_last")
+
+
 # TODO: maybe these try button should be a MoveSelector function? or not.
 def try_cancelbutton(gs: GameState) -> bool:
     """tries to cancel, returning whether it succeeded"""
@@ -123,6 +139,44 @@ def update(gs: GameState):
             gs.movesel.selecting = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
+
+            # check if we've clicked on the move navigation
+            """
+            # draw move navigation
+            offset = 3 # make sure the hitboxes dont overlap
+            f_width, p_width, n_width, l_width = 58, 37, 41, 54
+            screen.blit(gs.assets["nav_first"], (400 + offset, 300))
+            offset += 1
+            screen.blit(gs.assets["nav_prev"], (400 + offset + f_width, 300))
+            offset += 1
+            screen.blit(gs.assets["nav_next"], (400 + offset + f_width + p_width, 300))
+            offset += 1
+            screen.blit(gs.assets["nav_last"], (400 + offset + f_width + p_width + n_width, 300))
+            """
+            if not gs.cross_showing:
+                offset = 3
+                f_width, p_width, n_width, l_width = 58, 37, 41, 54
+                nav_height = 53
+
+                if pygame.Rect(400 + offset, 300, nav_height, f_width).collidepoint(x, y):
+                    try_nav_first(gs)
+                    continue
+
+                if pygame.Rect(400 + offset + f_width, 300, nav_height, p_width).collidepoint(x, y):
+                    try_nav_prev(gs)
+                    continue
+
+                if pygame.Rect(
+                    400 + offset + f_width + p_width, 300, nav_height, n_width
+                ).collidepoint(x, y):
+                    try_nav_next(gs)
+                    continue
+
+                if pygame.Rect(
+                    400 + offset + f_width + p_width + n_width, 300, nav_height, n_width
+                ).collidepoint(x, y):
+                    try_nav_last(gs)
+                    continue
 
             # check if we've clicked the cross or check
             if pygame.Rect(500 - 28, 50, 56, 53).collidepoint(x, y):
@@ -239,6 +293,22 @@ def draw(screen: pygame.Surface, gs: GameState):
 
     if gs.cross_showing:
         screen.blit(gs.assets["cross_white"], (500 - 28, 300))
+
+    # draw move navigation if applicable
+    if not gs.cross_showing:
+        offset = 3  # make sure the hitboxes dont overlap
+        f_width, p_width, n_width, l_width = 58, 37, 41, 54
+        screen.blit(gs.assets["nav_first"], (400 + offset, 300))
+        offset += 1
+        screen.blit(gs.assets["nav_prev"], (400 + offset + f_width, 300))
+        offset += 1
+        screen.blit(gs.assets["nav_next"], (400 + offset + f_width + p_width, 300))
+        offset += 1
+        screen.blit(
+            gs.assets["nav_last"], (400 + offset + f_width + p_width + n_width, 300)
+        )
+
+    pygame.draw.circle(screen, (255, 255, 255), (400, 300), radius=3, width=1)
 
     pygame.display.update()
 
