@@ -77,13 +77,7 @@ def update(gs: GameState):
         if event.type == QUIT:
             gs.playing = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                # TEMP
-                # lost two endgame games in playtesting accidentally because of this 💀
-                # leaving the history here for posterity
-                # d_print(f"{gs.movesel.selected_angle() / 3.1415}pi rad")
-                pass
-            elif event.key == pygame.K_d:
+            if event.key == pygame.K_d:
                 debug_str = input("entered debug mode: ")
                 split_debug: list[str] = debug_str.strip().split()
                 if len(split_debug) == 3 and split_debug[0].lower() == "move":
@@ -121,30 +115,6 @@ def update(gs: GameState):
                         piece.confirm_preview()
                         piece.update_capture_points()
                         piece.update_move_points()
-            elif event.key == pygame.K_EQUALS:
-                # fmt: off
-                order = ["rook", "knight", "bishop", "queen", "pawn", "king"]
-                for orderidx, x_pos in enumerate(range(25, 50*len(order), 50)):
-                    gs.pieces.append(pieces.Piece(x_pos, 0, 0, pieces.Side.BLACK, gs.assets[f"piece_{order[orderidx]}B{gs.piece_skin}"], order[orderidx]))
-                    gs.pieces.append(pieces.Piece(x_pos, 400, 0, pieces.Side.WHITE, gs.assets[f"piece_{order[orderidx]}W{gs.piece_skin}"], order[orderidx]))
-                # fmt: on
-            elif event.key == pygame.K_DELETE:
-                if len(gs.selected_pieces) != 1:
-                    continue
-
-                d_print("using keybind to try to delete current selected piece")
-                gs.pieces.remove(gs.selected_pieces[0])
-                gs.selected_pieces.clear()
-            elif event.key == pygame.K_BACKSPACE:
-                # KEYBIND FOR CANCEL BUTTON
-                cancelled = try_cancelbutton(gs)
-                if cancelled:
-                    continue
-            elif event.key == pygame.K_RETURN:
-                # KEYBIND FOR CONFIRM BUTTON
-                confirmed = try_confirmbutton(gs)
-                if confirmed:
-                    continue
         elif event.type == pygame.MOUSEBUTTONUP:
             gs.movesel.selecting = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
