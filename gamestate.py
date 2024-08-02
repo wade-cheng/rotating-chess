@@ -56,9 +56,9 @@ class GameState:
         # loading assets
         self.assets: dict[str, pygame.Surface] = dict()
         for file in os.listdir("assets"):
-            self.assets[
-                file.removesuffix(".png").removesuffix(".svg")
-            ] = pygame.image.load(f"assets/{file}")
+            self.assets[file.removesuffix(".png").removesuffix(".svg")] = (
+                pygame.image.load(f"assets/{file}")
+            )
         print(f"loaded assets:\n{self.assets.keys()}")
 
         self.piece_skin: settings.PieceSkin = settings.SKIN
@@ -170,16 +170,7 @@ class GameState:
             side_str = "B"
         elif side == Side.WHITE:
             side_str = "W"
-        self.pieces.append(
-            Piece(
-                x,
-                y,
-                rad,
-                side,
-                self.assets[f"piece_queen{side_str}{self.piece_skin.value}"],
-                "queen",
-            )
-        )
+        self.pieces.append(Piece(x, y, rad, side, self.assets[f"piece_queen{side_str}{self.piece_skin.value}"], "queen"))  # fmt: skip
 
     # fmt: off
     def load_normal_board(self):
