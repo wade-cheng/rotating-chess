@@ -48,6 +48,16 @@ def scalar_comp(
     return (u[0] * v[0] + u[1] * v[1]) / math.sqrt(u[0] ** 2 + u[1] ** 2)
 
 
+class BoardState:
+    def __init__(self) -> None:
+        pass
+
+
+class UIState:
+    def __init__(self) -> None:
+        pass
+
+
 class GameState:
     def __init__(self) -> None:
         self.playing: bool = True
@@ -55,11 +65,7 @@ class GameState:
 
         # loading assets
         self.assets: dict[str, pygame.Surface] = dict()
-        for file in os.listdir("assets"):
-            self.assets[file.removesuffix(".png").removesuffix(".svg")] = (
-                pygame.image.load(f"assets/{file}")
-            )
-        print(f"loaded assets:\n{self.assets.keys()}")
+        self.load_assets()
 
         self.piece_skin: settings.PieceSkin = settings.SKIN
         self.pieces: list[Piece] = []
@@ -74,6 +80,19 @@ class GameState:
         self.load_normal_board()
 
         self.nav: TurnNavigation = TurnNavigation(self.pieces)
+
+    def load_assets_to(self):
+        """
+        loads every file in assets dir to self.assets. 
+        strips .png and .svg suffixes, so the surface for a file named 'queen.png' 
+        can be accessed with self.assets['queen']
+        """
+        for file in os.listdir("assets"):
+            self.assets[file.removesuffix(".png").removesuffix(".svg")] = (
+                pygame.image.load(f"assets/{file}")
+            )
+        print(f"loaded assets:\n{self.assets.keys()}")
+
 
     def canmove(self, only_selected: Piece, point_x: float, point_y: float) -> bool:
         """checks if we can move the only selected piece to point_x, point_y"""
@@ -201,6 +220,7 @@ class GameState:
 
 
 class TurnNavigation:
+    """used to keep track of previous turns and has an API to navigate the board through them"""
     def __init__(self, pieces: list[Piece]) -> None:
         self.__turns = [copy.deepcopy(pieces)]
         self.__curr_turn = 0
