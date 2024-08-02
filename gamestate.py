@@ -81,7 +81,7 @@ class GameState:
 
         self.nav: TurnNavigation = TurnNavigation(self.pieces)
 
-    def load_assets_to(self):
+    def load_assets(self):
         """
         loads every file in assets dir to self.assets. 
         strips .png and .svg suffixes, so the surface for a file named 'queen.png' 
