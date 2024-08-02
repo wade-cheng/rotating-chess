@@ -14,25 +14,21 @@ if sys.platform == "emscripten":
 
 
 def try_nav_first(gs: GameState):
-    print("clicked try_nav_first")
     gs.nav.first()
     gs.nav.update_state(gs)
 
 
 def try_nav_prev(gs: GameState):
-    print("clicked try_nav_prev")
     gs.nav.prev()
     gs.nav.update_state(gs)
 
 
 def try_nav_next(gs: GameState):
-    print("clicked try_nav_next")
     gs.nav.next()
     gs.nav.update_state(gs)
 
 
 def try_nav_last(gs: GameState):
-    print("clicked try_nav_last")
     gs.nav.last()
     gs.nav.update_state(gs)
 
