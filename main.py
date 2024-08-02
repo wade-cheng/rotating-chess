@@ -116,6 +116,9 @@ def update(gs: GameState):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
 
+            # TODO for widget in gs.widgets, 
+            #           widget.mousebtn_down_at(x, y)
+
             # check if we've clicked on the move navigation
             """
             # draw move navigation
