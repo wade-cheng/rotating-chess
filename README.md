@@ -29,7 +29,7 @@ The following ruleset is currently recommended:
 
 ### technical details
 
-This pygame game is developed on Python 3.10.12. There is a `__future__` import for type checking in `moveselector.py`. 
+This pygame game is developed on Python 3.10.12. 
 
 Locally start the game by calling `python3 main.py`. See the `Makefile` for build options.
 

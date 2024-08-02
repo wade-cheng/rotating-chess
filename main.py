@@ -289,6 +289,8 @@ def draw(screen: pygame.Surface, gs: GameState):
             gs.assets["nav_last"], (400 + offset + f_width + p_width + n_width, 300)
         )
 
+    gs.testbtn.draw(screen)
+
     pygame.display.update()
 
 

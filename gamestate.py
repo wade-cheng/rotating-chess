@@ -1,10 +1,11 @@
-from moveselector import MoveSelector
+from pygame import Surface
 from pieces import *
 import os
 import random
 import math
 import settings
 import copy
+from enum import Enum
 
 
 def max_hit_distance(
@@ -48,6 +49,115 @@ def scalar_comp(
     return (u[0] * v[0] + u[1] * v[1]) / math.sqrt(u[0] ** 2 + u[1] ** 2)
 
 
+class Screen(Enum):
+    MAIN_MENU = 1
+    SETTINGS = 2
+    GAME = 3
+
+
+# forward declaration for type checking
+class GameState:
+    pass
+
+
+class MoveSelector:
+    def __init__(self, center: tuple[int, int], radius: int):
+        # center [x, y]
+        self.__center: tuple[int, int] = center
+        self.__radius: int = radius
+        self.__selected_point: tuple[int, int] | None = None
+        self.__visible: bool = False
+        self.selecting: bool = False
+
+    def draw(self, screen: pygame.Surface):
+        if not self.__visible:
+            return
+
+        pygame.draw.circle(
+            screen, (255, 255, 255), self.__center, self.__radius, width=1
+        )
+        if self.__selected_point is not None:
+            pygame.draw.line(
+                screen, (255, 255, 255), self.__selected_point, self.__center, width=1
+            )
+            pygame.draw.circle(
+                screen, (255, 0, 0), self.__selected_point, radius=5, width=1
+            )
+
+    def reveal(self):
+        self.__visible = True
+
+    def hide(self, gs: GameState):
+        self.__visible = False
+        self.__selected_point = None
+        gs.cross_showing = False
+        gs.check_showing = False
+
+    def is_visible(self) -> bool:
+        return self.__visible
+
+    def coord_collides(self, x: int, y: int) -> bool:
+        return (
+            (x - self.__center[0]) ** 2 + (y - self.__center[1]) ** 2
+        ) < self.__radius ** 2
+
+    def select_rotcircle(self, x: int, y: int, gs: GameState):
+        gs.check_showing = True
+
+        self.__selected_point = (x, y)
+
+        theta: float = self.selected_angle()
+        for piece in gs.selected_pieces:
+            piece.set_preview_angle(theta)
+
+    def selected_angle(self) -> float:
+        """requires a point to be selected. returns the selected angle in radians in the range (-pi, pi).
+        uses `-1 * math.atan2(y, x)` to invert the 'upside-downnedness' of topleft (0,0) coordinate system positioning."""
+        assert self.__selected_point is not None
+
+        y = self.__selected_point[1] - self.__center[1]
+        x = self.__selected_point[0] - self.__center[0]
+        # not sure why this is opposite of the convention that I know of but whatever, I can just invert it
+        # NOTE: it was because I forgot pygame considers positive x to be facing "down." whoops.
+        return -1 * math.atan2(y, x)
+
+    def get_selected_point(self) -> tuple[int, int] | None:
+        return self.__selected_point
+
+
+class Button:
+    def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
+        self.__surface = surface
+        self.__x = x
+        self.__y = y
+        self.__rect = surface.get_rect(left=x, top=y)
+        self.hovered: bool = True
+        # self.hovered: bool = False
+
+    def should_draw(self, x: int, y: int, gs: GameState) -> bool:
+        return self.__rect.collidepoint(x, y)
+
+    def draw(self, screen: pygame.Surface):
+        screen.blit(self.__surface, self.__rect)
+        if self.hovered:
+            pygame.draw.rect(screen, color=(255, 255, 255), rect=self.__rect, width=1)
+
+
+class CancelRot(Button):
+    def __init__(self, surface: Surface, x: int, y: int) -> None:
+        super().__init__(surface, x, y)
+
+    def should_draw(self, x: int, y: int, gs: GameState) -> bool:
+        return True
+
+class ConfirmRot(Button):
+    def __init__(self, surface: Surface, x: int, y: int) -> None:
+        super().__init__(surface, x, y)
+
+    def should_draw(self, x: int, y: int, gs: GameState) -> bool:
+        return True
+
+
 class BoardState:
     def __init__(self) -> None:
         pass
@@ -80,11 +190,12 @@ class GameState:
         self.load_normal_board()
 
         self.nav: TurnNavigation = TurnNavigation(self.pieces)
+        self.testbtn = Button(copy.deepcopy(self.assets["nav_last"]), 100, 10)
 
     def load_assets(self):
         """
-        loads every file in assets dir to self.assets. 
-        strips .png and .svg suffixes, so the surface for a file named 'queen.png' 
+        loads every file in assets dir to self.assets.
+        strips .png and .svg suffixes, so the surface for a file named 'queen.png'
         can be accessed with self.assets['queen']
         """
         for file in os.listdir("assets"):
@@ -92,7 +203,6 @@ class GameState:
                 pygame.image.load(f"assets/{file}")
             )
         print(f"loaded assets:\n{self.assets.keys()}")
-
 
     def canmove(self, only_selected: Piece, point_x: float, point_y: float) -> bool:
         """checks if we can move the only selected piece to point_x, point_y"""
@@ -221,6 +331,7 @@ class GameState:
 
 class TurnNavigation:
     """used to keep track of previous turns and has an API to navigate the board through them"""
+
     def __init__(self, pieces: list[Piece]) -> None:
         self.__turns = [copy.deepcopy(pieces)]
         self.__curr_turn = 0
