@@ -20,60 +20,6 @@ def update(gs: GameState):
 
         if event.type == QUIT:
             gs.playing = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            # check and update if we've moved a piece, promoting as needed
-            moved_piece = False
-            if len(gs.selected_pieces) == 1:
-                only_selected = gs.selected_pieces[0]
-                for point_x, point_y in only_selected.get_movable_points():
-                    if (
-                        ((x - point_x) ** 2 + (y - point_y) ** 2)
-                        < settings.HITCIRCLE_RADIUS ** 2
-                    ) and gs.canmove(only_selected, point_x, point_y):
-                        gs.move(only_selected, point_x, point_y)
-                        # note: gs.move() already removes the piece from selected, but we still have the pointer.
-                        if only_selected.should_promote():
-                            gs.promote(only_selected)
-
-                        moved_piece = True
-                        break
-
-            if moved_piece:
-                gs.nav.record_turn(gs.pieces)
-                continue
-
-            # check if we've clicked a piece
-            for piece in gs.pieces:
-                if piece.coord_collides(x, y):
-                    piece.selected = not piece.selected
-                    if piece.selected:
-                        gs.widgets["cancel_rot"].reveal()
-                        gs.widgets["movesel"].reveal()
-                        gs.selected_pieces.append(piece)
-                        if gs.widgets["movesel"].get_selected_point() is not None:
-                            piece.set_preview_angle(gs.widgets["movesel"].selected_angle())
-                    else:
-                        gs.selected_pieces.remove(piece)
-                        piece.stop_previewing()
-                        if len(gs.selected_pieces) == 0:
-                            gs.widgets["movesel"].hide(gs)
-
-                    if (
-                        not settings.CAN_SELECT_MULTIPLE
-                        and len(gs.selected_pieces) == 2
-                    ):
-                        gs.selected_pieces[0].selected = False
-                        gs.selected_pieces[0].stop_previewing()
-                        gs.selected_pieces.pop(0)
-                        gs.selected_pieces[0].stop_previewing()
-                        gs.widgets["movesel"].hide(gs)
-                        gs.widgets["cancel_rot"].reveal()
-                        gs.widgets["movesel"].reveal()
-
-                    # if len(gs.selected_pieces) != 0:
-                    #     gs.widgets["movesel"].reveal()
-                    # else:
-                    #     gs.widgets["movesel"].hide(gs)
 
     if pygame.mouse.get_pressed()[0]:
         x, y = pygame.mouse.get_pos()
@@ -97,17 +43,10 @@ def draw(screen: pygame.Surface, gs: GameState):
         for j in range(50, 450, 100):
             pygame.draw.rect(screen, settings.BACKGROUND_COLOR, (i, j, 50, 50))
 
-    # draw pieces
-    for piece in gs.pieces:
-        piece.draw(screen)
-        if len(gs.selected_pieces) == 1:
-            piece.draw_hitcircle(screen)
-
-    if len(gs.selected_pieces) == 1:
-        gs.selected_pieces[0].draw_move_points(screen)
-        gs.selected_pieces[0].draw_capture_points(screen)
-
     # draw "cover" for pieces in case they leak over to the selection panel
+    # TODO: this doesn't actually do anything anymore. need to get 
+    # LayeredUpdates working and make all these widgets.
+    # ie only thing in this function should be screen.fill board color and draw all widgets
     pygame.draw.rect(screen, settings.BOARD_COLOR, (8 * 50, 0, 4 * 50, 8 * 50))
 
     # draw widgets

@@ -50,6 +50,63 @@ class Pieces(Widget):
         # invariant: forall Piece not in selected_pieces, not Piece.selected
         self.selected_pieces: list[Piece] = []
 
+    def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            # check and update if we've moved a piece, promoting as needed
+            print("got handle")
+            moved_piece = False
+            if len(self.selected_pieces) == 1:
+                only_selected = self.selected_pieces[0]
+                for point_x, point_y in only_selected.get_movable_points():
+                    if (
+                        ((x - point_x) ** 2 + (y - point_y) ** 2)
+                        < settings.HITCIRCLE_RADIUS ** 2
+                    ) and gs.canmove(only_selected, point_x, point_y):
+                        gs.move(only_selected, point_x, point_y)
+                        # note: gs.move() already removes the piece from selected, but we still have the pointer.
+                        if only_selected.should_promote():
+                            gs.promote(only_selected)
+
+                        moved_piece = True
+                        break
+
+            if moved_piece:
+                gs.nav.record_turn(gs.widgets["pieces"].pieces)
+                return
+
+            # check if we've clicked a piece
+            for piece in self.pieces:
+                if piece.coord_collides(x, y):
+                    piece.selected = not piece.selected
+                    if piece.selected:
+                        gs.widgets["cancel_rot"].reveal()
+                        gs.widgets["movesel"].reveal()
+                        gs.widgets["pieces"].selected_pieces.append(piece)
+                        if gs.widgets["movesel"].get_selected_point() is not None:
+                            piece.set_preview_angle(gs.widgets["movesel"].selected_angle())
+                    else:
+                        self.selected_pieces.remove(piece)
+                        piece.stop_previewing()
+                        if len(self.selected_pieces) == 0:
+                            gs.widgets["movesel"].hide(gs)
+
+                    if (
+                        not settings.CAN_SELECT_MULTIPLE
+                        and len(self.selected_pieces) == 2
+                    ):
+                        self.selected_pieces[0].selected = False
+                        self.selected_pieces[0].stop_previewing()
+                        self.selected_pieces.pop(0)
+                        self.selected_pieces[0].stop_previewing()
+                        gs.widgets["movesel"].hide(gs)
+                        gs.widgets["cancel_rot"].reveal()
+                        gs.widgets["movesel"].reveal()
+
+                    # if len(self.selected_pieces) != 0:
+                    #     gs.widgets["movesel"].reveal()
+                    # else:
+                    #     gs.widgets["movesel"].hide(gs)
+
     def draw(self, screen: pygame.Surface, gs: GameState):
         # draw pieces
         for piece in self.pieces:
@@ -98,7 +155,7 @@ class MoveSelector(Widget):
             return
         
         self.select_rotcircle(x, y, gs)
-        for piece in gs.selected_pieces:
+        for piece in gs.widgets["pieces"].selected_pieces:
             piece.update_capture_points()
             piece.update_move_points()
 
@@ -128,7 +185,7 @@ class MoveSelector(Widget):
         self.__selected_point = (x, y)
 
         theta: float = self.selected_angle()
-        for piece in gs.selected_pieces:
+        for piece in gs.widgets["pieces"].selected_pieces:
             piece.set_preview_angle(theta)
 
     def selected_angle(self) -> float:
@@ -181,12 +238,12 @@ class CancelRot(Button):
                 return
 
             gs.widgets["movesel"].hide(gs)
-            for piece in gs.selected_pieces:
+            for piece in gs.widgets["pieces"].selected_pieces:
                 # according to invariant, this should set all to false.
                 # setting not piece.selected is sorta like verifying invariant
                 piece.selected = not piece.selected
                 piece.stop_previewing()
-            gs.selected_pieces.clear()
+            gs.widgets["pieces"].selected_pieces.clear()
 
 class ConfirmRot(Button):
     def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
@@ -202,14 +259,14 @@ class ConfirmRot(Button):
                 return
 
             gs.widgets["movesel"].hide(gs)
-            for piece in gs.selected_pieces:
+            for piece in gs.widgets["pieces"].selected_pieces:
                 # according to invariant, this should set all to false.
                 # setting not piece.selected is sorta like verifying invariant
                 piece.selected = not piece.selected
                 piece.confirm_preview()
-            gs.selected_pieces.clear()
+            gs.widgets["pieces"].selected_pieces.clear()
 
-            gs.nav.record_turn(gs.pieces)
+            gs.nav.record_turn(gs.widgets["pieces"].pieces)
 
 class NavFirst(Button):
     def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
