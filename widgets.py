@@ -14,32 +14,30 @@ if TYPE_CHECKING:
 
 class Widget:
     """stuff like Buttons and also the MoveSelector that really isn't a Button"""
-    def lmb_clicked_at(self, x: int, y: int) -> None:
-        """this should be run every time lmb is clicked"""
+    def __init__(self) -> None:
+        self.__visible: bool = False
+        
+    def reveal(self):
+        self.__visible = True
+
+    def hide(self, gs: GameState):
+        self.__visible = False
+        
+    def handle_event(self, e: pygame.Event, gs: GameState) -> None:
+        pass
+
+    def draw(self, screen: pygame.Surface):
         pass
     
-    def rmb_clicked_at(self, x: int, y: int) -> None:
-        """this should be run every time rmb is clicked"""
-        pass
-    
-    def lmb_held_at(self, x: int, y: int) -> None:
-        """this should be run every time lmb is held"""
-        pass
-    
-    def rmb_held_at(self, x: int, y: int) -> None:
-        """this should be run every time rmb is held"""
-        pass
-    
-    
-##mousebtn_down_at(x, y)
 
 class MoveSelector(Widget):
     def __init__(self, center: tuple[int, int], radius: int):
         # center [x, y]
+        super().__init__()
+        print(f":D {self.__visible}")
         self.__center: tuple[int, int] = center
         self.__radius: int = radius
         self.__selected_point: tuple[int, int] | None = None
-        self.__visible: bool = False
         self.selecting: bool = False
 
     def draw(self, screen: pygame.Surface):
@@ -100,14 +98,12 @@ class MoveSelector(Widget):
 
 class Button(Widget):
     def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
+        super().__init__()
         self.__surface = surface
         self.__x = x
         self.__y = y
         self.__rect = surface.get_rect(left=x, top=y)
         self.hovered: bool = False
-
-    def should_draw(self, x: int, y: int, gs: GameState) -> bool:
-        return self.__rect.collidepoint(x, y)
 
     def draw(self, screen: pygame.Surface):
         screen.blit(self.__surface, self.__rect)
@@ -119,12 +115,22 @@ class CancelRot(Button):
     def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
         super().__init__(surface, x, y)
 
-    def should_draw(self, x: int, y: int, gs: GameState) -> bool:
-        return True
-
 class ConfirmRot(Button):
     def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
         super().__init__(surface, x, y)
 
-    def should_draw(self, x: int, y: int, gs: GameState) -> bool:
-        return True
+class NavFirst(Button):
+    def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
+        super().__init__(surface, x, y)
+
+class NavPrev(Button):
+    def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
+        super().__init__(surface, x, y)
+
+class NavNext(Button):
+    def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
+        super().__init__(surface, x, y)
+
+class NavLast(Button):
+    def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
+        super().__init__(surface, x, y)

@@ -69,7 +69,11 @@ def try_confirmbutton(gs: GameState) -> bool:
 
 
 def update(gs: GameState):
+    x, y = pygame.mouse.get_pos()
     for event in pygame.event.get():
+        for widget in gs.widgets:
+            widget.handle_event(event, gs)
+
         if event.type == QUIT:
             gs.playing = False
         elif event.type == pygame.KEYDOWN:
@@ -112,26 +116,13 @@ def update(gs: GameState):
                         piece.update_capture_points()
                         piece.update_move_points()
         elif event.type == pygame.MOUSEBUTTONUP:
-            gs.movesel.selecting = False
+            x, y = pygame.mouse.get_pos()
+
+            # TODO: gs.movesel.selecting = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
 
-            # TODO for widget in gs.widgets, 
-            #           widget.mousebtn_down_at(x, y)
-
             # check if we've clicked on the move navigation
-            """
-            # draw move navigation
-            offset = 3 # make sure the hitboxes dont overlap
-            f_width, p_width, n_width, l_width = 58, 37, 41, 54
-            screen.blit(gs.assets["nav_first"], (400 + offset, 300))
-            offset += 1
-            screen.blit(gs.assets["nav_prev"], (400 + offset + f_width, 300))
-            offset += 1
-            screen.blit(gs.assets["nav_next"], (400 + offset + f_width + p_width, 300))
-            offset += 1
-            screen.blit(gs.assets["nav_last"], (400 + offset + f_width + p_width + n_width, 300))
-            """
             if not gs.cross_showing:
                 offset = 3
                 f_width, p_width, n_width, l_width = 58, 37, 41, 54
@@ -233,11 +224,12 @@ def update(gs: GameState):
     # if pygame.mouse.get_pressed()[0]:
     if pygame.mouse.get_pressed()[0] and gs.movesel.selecting:
         x, y = pygame.mouse.get_pos()
-        # if gs.movesel.is_visible() and gs.movesel.coord_collides(x, y):
-        gs.movesel.select_rotcircle(x, y, gs)
-        for piece in gs.selected_pieces:
-            piece.update_capture_points()
-            piece.update_move_points()
+
+        # TODO: 
+        # gs.movesel.select_rotcircle(x, y, gs)
+        # for piece in gs.selected_pieces:
+        #     piece.update_capture_points()
+        #     piece.update_move_points()
 
 
 def draw(screen: pygame.Surface, gs: GameState):
@@ -268,31 +260,33 @@ def draw(screen: pygame.Surface, gs: GameState):
     # draw "cover" for pieces in case they leak over to the selection panel
     pygame.draw.rect(screen, settings.BOARD_COLOR, (8 * 50, 0, 4 * 50, 8 * 50))
 
+    for widget in gs.widgets:
+        widget.draw(screen)
+
+    # TODO:
     # draw rotation selector
-    gs.movesel.draw(screen)
+    # gs.movesel.draw(screen)
 
-    # draw check and cross if applicable
-    if gs.check_showing:
-        screen.blit(gs.assets["check_white"], (500 - 28, 50))
+    # # draw check and cross if applicable
+    # if gs.check_showing:
+    #     screen.blit(gs.assets["check_white"], (500 - 28, 50))
 
-    if gs.cross_showing:
-        screen.blit(gs.assets["cross_white"], (500 - 28, 300))
+    # if gs.cross_showing:
+    #     screen.blit(gs.assets["cross_white"], (500 - 28, 300))
 
-    # draw move navigation if applicable
-    if not gs.cross_showing:
-        offset = 3  # make sure the hitboxes dont overlap
-        f_width, p_width, n_width, l_width = 58, 37, 41, 54
-        screen.blit(gs.assets["nav_first"], (400 + offset, 300))
-        offset += 1
-        screen.blit(gs.assets["nav_prev"], (400 + offset + f_width, 300))
-        offset += 1
-        screen.blit(gs.assets["nav_next"], (400 + offset + f_width + p_width, 300))
-        offset += 1
-        screen.blit(
-            gs.assets["nav_last"], (400 + offset + f_width + p_width + n_width, 300)
-        )
-
-    gs.testbtn.draw(screen)
+    # # draw move navigation if applicable
+    # if not gs.cross_showing:
+    #     offset = 3  # make sure the hitboxes dont overlap
+    #     f_width, p_width, n_width, l_width = 58, 37, 41, 54
+    #     screen.blit(gs.assets["nav_first"], (400 + offset, 300))
+    #     offset += 1
+    #     screen.blit(gs.assets["nav_prev"], (400 + offset + f_width, 300))
+    #     offset += 1
+    #     screen.blit(gs.assets["nav_next"], (400 + offset + f_width + p_width, 300))
+    #     offset += 1
+    #     screen.blit(
+    #         gs.assets["nav_last"], (400 + offset + f_width + p_width + n_width, 300)
+    #     )
 
     pygame.display.update()
 

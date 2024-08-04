@@ -77,8 +77,20 @@ class GameState:
         # self.load_chess_960()
         self.load_normal_board()
 
+        # fmt: off
+        f_width, p_width, n_width, l_width = 58, 37, 41, 54
+        self.widgets: list[Widget] = {
+            MoveSelector(center=(500, 200), radius=80),
+            CancelRot(self.assets["cross_white"], 500 - 28, 300),
+            ConfirmRot(self.assets["check_white"], 500 - 28, 50),
+            NavFirst(self.assets["nav_first"], 400 + 3, 300),
+            NavPrev(self.assets["nav_prev"], 400 + 4 + f_width, 300),
+            NavNext(self.assets["nav_next"], 400 + 5 + f_width + p_width, 300),
+            NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300),
+        }
+        # fmt: on
+
         self.nav: TurnNavigation = TurnNavigation(self.pieces)
-        self.testbtn = Button(copy.deepcopy(self.assets["nav_last"]), 100, 10)
 
     def load_assets(self):
         """
