@@ -399,14 +399,6 @@ class Piece:
         self.__move_DAs = self.__capture_DAs
 
 
-class DiscreteMover(Piece):
-    pass
-
-
-class ContinuousMover(Piece):
-    pass
-
-
 if __name__ == "__main__":
     d = DistsAngle(range(4), math.pi / 4)
     d = DistsAngle(itertools.count(step=1), math.pi / 8)

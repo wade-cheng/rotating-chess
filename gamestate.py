@@ -59,7 +59,6 @@ class Screen(Enum):
 class GameState:
     def __init__(self) -> None:
         self.playing: bool = True
-        self.movesel: MoveSelector = MoveSelector((500, 200), 80)
 
         # loading assets
         self.assets: dict[str, pygame.Surface] = dict()
@@ -71,22 +70,20 @@ class GameState:
         # invariant: forall Piece not in selected_pieces, not Piece.selected
         self.selected_pieces: list[Piece] = []
 
-        self.cross_showing = False
-        self.check_showing = False
-
         # self.load_chess_960()
         self.load_normal_board()
 
         # fmt: off
         f_width, p_width, n_width, l_width = 58, 37, 41, 54
-        self.widgets: list[Widget] = {
-            MoveSelector(center=(500, 200), radius=80),
-            CancelRot(self.assets["cross_white"], 500 - 28, 300),
-            ConfirmRot(self.assets["check_white"], 500 - 28, 50),
-            NavFirst(self.assets["nav_first"], 400 + 3, 300),
-            NavPrev(self.assets["nav_prev"], 400 + 4 + f_width, 300),
-            NavNext(self.assets["nav_next"], 400 + 5 + f_width + p_width, 300),
-            NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300),
+        self.widgets: dict[str, Widget] = {
+            "pieces": Pieces(),
+            "movesel": MoveSelector(center=(500, 200), radius=80),
+            "cancel_rot": CancelRot(self.assets["cross_white"], 500 - 28, 300),
+            "confirm_rot": ConfirmRot(self.assets["check_white"], 500 - 28, 50),
+            "nav_first_btn": NavFirst(self.assets["nav_first"], 400 + 3, 300),
+            "nav_prev_btn": NavPrev(self.assets["nav_prev"], 400 + 4 + f_width, 300),
+            "nav_next_btn": NavNext(self.assets["nav_next"], 400 + 5 + f_width + p_width, 300),
+            "nav_last_btn": NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300),
         }
         # fmt: on
 
@@ -185,7 +182,7 @@ class GameState:
         # after moving, automatically deselect the piece and spinner
         only_selected.selected = False
         self.selected_pieces.pop()
-        self.movesel.hide(self)
+        self.widgets["movesel"].hide(self)
 
     def promote(self, piece: Piece):
         x, y, rad, side = (
