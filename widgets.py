@@ -204,6 +204,9 @@ class MoveSelector(Widget):
 
 
 class Button(Widget):
+    # if one button is clicked, we should prevent buttons "under" it from being clicked.
+    one_clicked: bool = False
+
     def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
         super().__init__()
         self._surface = surface
@@ -213,8 +216,19 @@ class Button(Widget):
         self.hovered: bool = False
 
     def clicked(self, x: int, y: int) -> bool:
-        """returns whether a click at x, y has clicked this button"""
-        return self._rect.collidepoint(x, y)
+        """
+        should be run whenever we check if a button is clicked.
+        this lets us manipulate Button.one_clicked.
+        returns whether a click at x, y has clicked this button
+        """
+        if Button.one_clicked:
+            return False
+
+        if self._rect.collidepoint(x, y):
+            Button.one_clicked = True
+            return True
+        
+        return False
 
     def draw(self, screen: pygame.Surface, gs: GameState):
         if self.is_visible():

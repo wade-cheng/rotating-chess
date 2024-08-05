@@ -4,6 +4,7 @@ import settings
 import pygame
 from pygame.locals import *
 from gamestate import GameState
+import widgets
 from debug import *
 
 import sys, platform
@@ -13,6 +14,7 @@ if sys.platform == "emscripten":
 
 
 def update(gs: GameState):
+    widgets.Button.one_clicked = False
     x, y = pygame.mouse.get_pos()
     for event in pygame.event.get():
         for widget in gs.widgets.values():
