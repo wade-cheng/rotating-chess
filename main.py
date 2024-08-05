@@ -2,9 +2,11 @@ import asyncio
 import random
 import settings
 import pygame
+from pygame.event import Event
 from pygame.locals import *
 from gamestate import GameState
 import widgets
+from widgets import MOUSE_HELD
 from debug import *
 
 import sys, platform
@@ -16,18 +18,16 @@ if sys.platform == "emscripten":
 def update(gs: GameState):
     widgets.Button.one_clicked = False
     x, y = pygame.mouse.get_pos()
+
+    if pygame.mouse.get_pressed()[0]:
+        pygame.event.post(Event(MOUSE_HELD))
+
     for event in pygame.event.get():
         for widget in gs.widgets.values():
             widget.handle_event(event, gs, x, y)
 
         if event.type == QUIT:
             gs.playing = False
-
-    if pygame.mouse.get_pressed()[0]:
-        x, y = pygame.mouse.get_pos()
-
-        for widget in gs.widgets.values():
-            widget.handle_mouse_hold(gs, x, y)
 
 
 def draw(screen: pygame.Surface, gs: GameState):

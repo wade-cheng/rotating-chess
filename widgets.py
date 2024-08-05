@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from gamestate import GameState
 
+MOUSE_HELD = pygame.USEREVENT + 1
 
 class Widget:
     """
@@ -35,9 +36,6 @@ class Widget:
         return self._visible
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
-        pass
-
-    def handle_mouse_hold(self, gs: GameState, x: int, y: int) -> None:
         pass
 
     def draw(self, screen: pygame.Surface, gs: GameState):
@@ -148,15 +146,14 @@ class MoveSelector(Widget):
             if self.is_visible() and self.coord_collides(x, y):
                 self.selecting = True
                 self.select_rotcircle(x, y, gs)
+        elif e.type == MOUSE_HELD:
+            if not self.selecting:
+                return
 
-    def handle_mouse_hold(self, gs: GameState, x: int, y: int) -> None:
-        if not self.selecting:
-            return
-
-        self.select_rotcircle(x, y, gs)
-        for piece in gs.widgets["pieces"].selected_pieces:
-            piece.update_capture_points()
-            piece.update_move_points()
+            self.select_rotcircle(x, y, gs)
+            for piece in gs.widgets["pieces"].selected_pieces:
+                piece.update_capture_points()
+                piece.update_move_points()
 
     def draw(self, screen: pygame.Surface, gs: GameState):
         if not self._visible:
