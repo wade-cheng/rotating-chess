@@ -53,7 +53,6 @@ class Pieces(Widget):
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
             # check and update if we've moved a piece, promoting as needed
-            print("got handle")
             moved_piece = False
             if len(self.selected_pieces) == 1:
                 only_selected = self.selected_pieces[0]
