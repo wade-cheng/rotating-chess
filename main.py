@@ -46,7 +46,7 @@ def draw(screen: pygame.Surface, gs: GameState):
             pygame.draw.rect(screen, settings.BACKGROUND_COLOR, (i, j, 50, 50))
 
     # draw "cover" for pieces in case they leak over to the selection panel
-    # TODO: this doesn't actually do anything anymore. need to get 
+    # TODO: this doesn't actually do anything anymore. need to get
     # LayeredUpdates working and make all these widgets.
     # ie only thing in this function should be screen.fill board color and draw all widgets
     pygame.draw.rect(screen, settings.BOARD_COLOR, (8 * 50, 0, 4 * 50, 8 * 50))

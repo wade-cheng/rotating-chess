@@ -15,6 +15,7 @@ HITCIRCLE_COLOR = (0, 255, 127)  # springgreen
 
 HITCIRCLE_RADIUS: int = 17
 
+
 # THESE ARE SKIN OPTIONS. DO NOT EDIT
 class PieceSkin(Enum):
     a = ""

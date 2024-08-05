@@ -9,14 +9,9 @@ import copy
 from enum import Enum
 
 
-def max_hit_distance(
-    start_x: float, start_y: float, end_x: float, end_y: float
-) -> float:
+def max_hit_distance(start_x: float, start_y: float, end_x: float, end_y: float) -> float:
     """simple distance formula + hitcirclerad"""
-    return (
-        math.sqrt((start_x - end_x) ** 2 + (start_y - end_y) ** 2)
-        + settings.HITCIRCLE_RADIUS
-    )
+    return math.sqrt((start_x - end_x) ** 2 + (start_y - end_y) ** 2) + settings.HITCIRCLE_RADIUS
 
 
 def distance(
@@ -28,10 +23,9 @@ def distance(
     point_y: float,
 ) -> float:
     """finds the distance from a point to a line, where the line is given by two points"""
-    return abs(
-        (end_x - start_x) * (point_y - start_y)
-        - (point_x - start_x) * (end_y - start_y)
-    ) / math.sqrt((end_x - start_x) ** 2 + (end_y - start_y) ** 2)
+    return abs((end_x - start_x) * (point_y - start_y) - (point_x - start_x) * (end_y - start_y)) / math.sqrt(
+        (end_x - start_x) ** 2 + (end_y - start_y) ** 2
+    )
 
 
 def scalar_comp(
@@ -94,9 +88,7 @@ class GameState:
         can be accessed with self.assets['queen']
         """
         for file in os.listdir("assets"):
-            self.assets[file.removesuffix(".png").removesuffix(".svg")] = (
-                pygame.image.load(f"assets/{file}")
-            )
+            self.assets[file.removesuffix(".png").removesuffix(".svg")] = pygame.image.load(f"assets/{file}")
         print(f"loaded assets:\n{self.assets.keys()}")
 
     def canmove(self, only_selected: Piece, point_x: float, point_y: float) -> bool:
@@ -134,9 +126,7 @@ class GameState:
                     point_x,
                     point_y,
                 )
-                < max_hit_distance(
-                    only_selected.get_x(), only_selected.get_y(), point_x, point_y
-                )
+                < max_hit_distance(only_selected.get_x(), only_selected.get_y(), point_x, point_y)
             ):
                 # piece is within correct distance to block. now check:
                 if (

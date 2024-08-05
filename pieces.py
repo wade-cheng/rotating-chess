@@ -21,13 +21,9 @@ class DistsAngle:
 
     def get_points(self, angle):
         """angle in radians is the offset angle"""
-        return (
-            self.get_point(d, self.__angle, angle) for d in copy.copy(self.__distances)
-        )
+        return (self.get_point(d, self.__angle, angle) for d in copy.copy(self.__distances))
 
-    def get_point(
-        self, distance: float, base_angle: float, offset_angle: float
-    ) -> tuple[float, float]:
+    def get_point(self, distance: float, base_angle: float, offset_angle: float) -> tuple[float, float]:
         """angle in radians"""
         angle = base_angle - offset_angle
         return (distance * math.cos(angle), distance * math.sin(angle))
@@ -51,9 +47,7 @@ class Piece:
         self.__side = side
         self.selected = False
         self.__default_image = img
-        self.__actual_image = pygame.transform.rotate(
-            self.__default_image, math.degrees(angle)
-        )
+        self.__actual_image = pygame.transform.rotate(self.__default_image, math.degrees(angle))
         self.__preview_image: pygame.Surface | None = None
         self.__piece_name: str = piece_name
 
@@ -70,14 +64,10 @@ class Piece:
         self.__init()
 
     def coord_collides(self, x: float, y: float) -> bool:
-        return (
-            (x - self.__x) ** 2 + (y - self.__y) ** 2
-        ) < settings.HITCIRCLE_RADIUS ** 2
+        return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < settings.HITCIRCLE_RADIUS**2
 
     def piece_collides(self, x: float, y: float) -> bool:
-        return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < (
-            settings.HITCIRCLE_RADIUS * 2
-        ) ** 2
+        return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < (settings.HITCIRCLE_RADIUS * 2) ** 2
 
     def get_x(self) -> float:
         return self.__x
@@ -234,21 +224,14 @@ class Piece:
     def should_draw_point(self, x: float, y: float) -> bool:
         BOARD_SIZE = 50 * 8
         MARGIN = settings.HITCIRCLE_RADIUS
-        if (
-            x < 0 - MARGIN
-            or x > BOARD_SIZE + MARGIN
-            or y < 0 - MARGIN
-            or y > BOARD_SIZE + MARGIN
-        ):
+        if x < 0 - MARGIN or x > BOARD_SIZE + MARGIN or y < 0 - MARGIN or y > BOARD_SIZE + MARGIN:
             return False
         return True
 
     def set_preview_angle(self, angle: float):
         """angle as radians"""
         self.__preview_angle = angle
-        self.__preview_image = pygame.transform.rotate(
-            self.__default_image, math.degrees(angle)
-        )
+        self.__preview_image = pygame.transform.rotate(self.__default_image, math.degrees(angle))
         if self.__preview_move_points is None and self.__preview_capture_points is None:
             self.__preview_move_points = []
             self.__preview_capture_points = []
@@ -256,9 +239,7 @@ class Piece:
     def confirm_preview(self):
         assert self.__preview_angle is not None and self.__preview_image is not None
 
-        print(
-            f"rotating {self.get_x()},{self.get_y()}{self.__piece_name} {self.__angle}rad to {self.__preview_angle}rad"
-        )
+        print(f"rotating {self.get_x()},{self.get_y()}{self.__piece_name} {self.__angle}rad to {self.__preview_angle}rad")
 
         self.__actual_image = self.__preview_image
         self.__preview_image = None
@@ -321,7 +302,7 @@ class Piece:
             ]:
                 self.__capture_DAs.append(
                     DistsAngle(
-                        [math.sqrt(50 ** 2 + 100 ** 2)],
+                        [math.sqrt(50**2 + 100**2)],
                         angle=rad,
                     )
                 )
@@ -344,15 +325,13 @@ class Piece:
                 rad = rad + math.pi / 4
                 self.__capture_DAs.append(
                     DistsAngle(
-                        [math.sqrt(50 ** 2 + 50 ** 2)],
+                        [math.sqrt(50**2 + 50**2)],
                         angle=rad,
                     )
                 )
             self.__move_DAs = self.__capture_DAs
         else:
-            raise Exception(
-                f"no distances angle mapping found for piece name: {self.__piece_name}"
-            )
+            raise Exception(f"no distances angle mapping found for piece name: {self.__piece_name}")
 
     def include_diagonal_DAs(self):
         """appends the base moveset for a bishop to self's DistsAngles"""
@@ -384,18 +363,10 @@ class Piece:
 
     def include_level_DAs(self):
         """appends the base moveset for a rook to self's DistsAngles"""
-        self.__capture_DAs.append(
-            DistsAngle(itertools.count(start=50, step=50), angle=0)
-        )
-        self.__capture_DAs.append(
-            DistsAngle(itertools.count(start=-50, step=-50), angle=0)
-        )
-        self.__capture_DAs.append(
-            DistsAngle(itertools.count(start=50, step=50), angle=math.pi / 2)
-        )
-        self.__capture_DAs.append(
-            DistsAngle(itertools.count(start=-50, step=-50), angle=math.pi / 2)
-        )
+        self.__capture_DAs.append(DistsAngle(itertools.count(start=50, step=50), angle=0))
+        self.__capture_DAs.append(DistsAngle(itertools.count(start=-50, step=-50), angle=0))
+        self.__capture_DAs.append(DistsAngle(itertools.count(start=50, step=50), angle=math.pi / 2))
+        self.__capture_DAs.append(DistsAngle(itertools.count(start=-50, step=-50), angle=math.pi / 2))
         self.__move_DAs = self.__capture_DAs
 
 
