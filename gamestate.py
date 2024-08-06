@@ -229,7 +229,7 @@ class TurnNavigation:
     def get_game_save(self) -> str:
         return json.dumps(
             {
-                "instructions": "this ENTIRE alert is your game save. you can triple-click to select all, then copy it for your use.",
+                "save_version": "1.0.0",
                 "save": json_compress([[piece.to_JSON_dict() for piece in turn] for turn in self.__turns]),
             }
         )
