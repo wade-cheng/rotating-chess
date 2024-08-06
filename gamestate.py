@@ -60,6 +60,10 @@ class GameState:
         self.assets: dict[str, pygame.Surface] = dict()
         self.load_img_assets()
 
+        pygame.font.init()
+        font = pygame.font.Font('assets/hero-speak.ttf', 14)
+        # text = font.render('the creator of this game said they wanted to show you something cool.', True, (0,0,0), wraplength=MAP_WIDTH - 20)
+
         self.piece_skin: settings.PieceSkin = settings.SKIN
         # invariant: forall Piece in selected_pieces, Piece.selected
         # invariant: forall Piece not in selected_pieces, not Piece.selected
@@ -234,10 +238,10 @@ class TurnNavigation:
         return len(self.__turns)
 
     def get_game_save(self) -> str:
-        return json.dumps(
+        return json_compress(
             {
                 "save_version": "1.0.0",
-                "save": json_compress([[piece.to_JSON_dict() for piece in turn] for turn in self.__turns]),
+                "save": [[piece.to_JSON_dict() for piece in turn] for turn in self.__turns],
             }
         )
 
