@@ -293,10 +293,6 @@ class NavFirst(Button):
             if not self.check_clicked(x, y):
                 return
 
-            if sys.platform == "emscripten":
-                platform.window.alert(gs.nav.get_game_save())
-                # platform.window.alert(json.dumps(gs.widgets["pieces"].pieces))
-
             gs.nav.first()
             gs.nav.update_state(gs)
 
@@ -374,7 +370,9 @@ class ExportSave(Button):
             if not self.check_clicked(x, y):
                 return
 
-            print("clicked export")
+            if sys.platform == "emscripten":
+                platform.window.alert(gs.nav.get_game_save())
+                # platform.window.alert(json.dumps(gs.widgets["pieces"].pieces))
 
     def draw(self, screen: pygame.Surface, gs: GameState):
         super().draw(screen, gs)
@@ -388,8 +386,6 @@ class ImportSave(Button):
         if e.type == pygame.MOUSEBUTTONDOWN:
             if not self.check_clicked(x, y):
                 return
-
-            print("clicked import")
 
     def draw(self, screen: pygame.Surface, gs: GameState):
         super().draw(screen, gs)
