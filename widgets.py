@@ -205,7 +205,7 @@ class Button(Widget):
         self._rect = surface.get_rect(left=x, top=y)
         self.hovered: bool = False
 
-    def clicked(self, x: int, y: int) -> bool:
+    def check_clicked(self, x: int, y: int) -> bool:
         """
         should be run whenever we check if a button is clicked.
         this lets us manipulate Button.one_clicked.
@@ -214,11 +214,17 @@ class Button(Widget):
         if Button.one_clicked:
             return False
 
-        if self._rect.collidepoint(x, y):
+        if self.check_hovered(x, y):
             Button.one_clicked = True
             return True
 
         return False
+
+    def check_hovered(self, x: int, y: int) -> bool:
+        """
+        should be run whenever we check if a button is hovered over.
+        """
+        return self._rect.collidepoint(x, y)
 
     def draw(self, screen: pygame.Surface, gs: GameState):
         if self.is_visible():
@@ -238,7 +244,7 @@ class CancelRot(Button):
             if not gs.widgets["cancel_rot"].is_visible():
                 return
 
-            if not self.clicked(x, y):
+            if not self.check_clicked(x, y):
                 return
 
             gs.widgets["movesel"].hide(gs)
@@ -260,7 +266,7 @@ class ConfirmRot(Button):
             if not gs.widgets["confirm_rot"].is_visible():
                 return
 
-            if not self.clicked(x, y):
+            if not self.check_clicked(x, y):
                 return
 
             gs.widgets["movesel"].hide(gs)
@@ -286,7 +292,7 @@ class NavFirst(Button):
             if gs.widgets["cancel_rot"].is_visible():
                 return
 
-            if not self.clicked(x, y):
+            if not self.check_clicked(x, y):
                 return
 
             if sys.platform == "emscripten":
@@ -310,7 +316,7 @@ class NavPrev(Button):
             if gs.widgets["cancel_rot"].is_visible():
                 return
 
-            if not self.clicked(x, y):
+            if not self.check_clicked(x, y):
                 return
 
             gs.nav.prev()
@@ -330,7 +336,7 @@ class NavNext(Button):
             if gs.widgets["cancel_rot"].is_visible():
                 return
 
-            if not self.clicked(x, y):
+            if not self.check_clicked(x, y):
                 return
 
             gs.nav.next()
@@ -350,7 +356,7 @@ class NavLast(Button):
             if gs.widgets["cancel_rot"].is_visible():
                 return
 
-            if not self.clicked(x, y):
+            if not self.check_clicked(x, y):
                 return
 
             gs.nav.last()
@@ -359,3 +365,33 @@ class NavLast(Button):
     def draw(self, screen: pygame.Surface, gs: GameState):
         if not gs.widgets["cancel_rot"].is_visible():
             super().draw(screen, gs)
+
+
+class ExportSave(Button):
+    def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
+        super().__init__(surface, x, y)
+
+    def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            if not self.check_clicked(x, y):
+                return
+
+            print("clicked export")
+
+    def draw(self, screen: pygame.Surface, gs: GameState):
+        super().draw(screen, gs)
+
+
+class ImportSave(Button):
+    def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
+        super().__init__(surface, x, y)
+
+    def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            if not self.check_clicked(x, y):
+                return
+
+            print("clicked import")
+
+    def draw(self, screen: pygame.Surface, gs: GameState):
+        super().draw(screen, gs)

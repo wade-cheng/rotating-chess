@@ -75,6 +75,8 @@ class GameState:
             "nav_prev_btn": NavPrev(self.assets["nav_prev"], 400 + 4 + f_width, 300),
             "nav_next_btn": NavNext(self.assets["nav_next"], 400 + 5 + f_width + p_width, 300),
             "nav_last_btn": NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300),
+            "exp_save": ExportSave(self.assets["download"], 415, 10),
+            "imp_save": ImportSave(self.assets["upload"], 540, 10),
         }
         # fmt: on
 
