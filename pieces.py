@@ -1,3 +1,4 @@
+import json
 import math
 import settings
 import pygame
@@ -62,6 +63,15 @@ class Piece:
         self.__move_points: list[tuple[float, float]] = []
         self.__preview_move_points: list[tuple[float, float]] | None = None
         self.__init()
+
+    def to_JSON_dict(self):
+        return {
+            "x": self.__x,
+            "y": self.__y,
+            "angle": self.__angle,
+            "side": 1 if self.__side == Side.BLACK else 2,
+            "piece_name": self.__piece_name,
+        }
 
     def coord_collides(self, x: float, y: float) -> bool:
         return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < settings.HITCIRCLE_RADIUS**2

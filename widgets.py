@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 
 import pygame
 from pygame.locals import *
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from gamestate import GameState
 
 MOUSE_HELD = pygame.USEREVENT + 1
+
 
 class Widget:
     """
@@ -272,6 +274,9 @@ class ConfirmRot(Button):
             gs.nav.record_turn(gs.widgets["pieces"].pieces)
 
 
+import sys, platform
+
+
 class NavFirst(Button):
     def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
         super().__init__(surface, x, y)
@@ -283,6 +288,10 @@ class NavFirst(Button):
 
             if not self.clicked(x, y):
                 return
+
+            if sys.platform == "emscripten":
+                platform.window.alert(gs.nav.get_game_save())
+                # platform.window.alert(json.dumps(gs.widgets["pieces"].pieces))
 
             gs.nav.first()
             gs.nav.update_state(gs)

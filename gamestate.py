@@ -7,6 +7,8 @@ import math
 import settings
 import copy
 from enum import Enum
+from compressjson import json_compress, json_decompress
+import json
 
 
 def max_hit_distance(start_x: float, start_y: float, end_x: float, end_y: float) -> float:
@@ -223,6 +225,14 @@ class TurnNavigation:
 
     def __len__(self) -> int:
         return len(self.__turns)
+
+    def get_game_save(self) -> str:
+        return json.dumps(
+            {
+                "instructions": "this ENTIRE alert is your game save. you can triple-click to select all, then copy it for your use.",
+                "save": json_compress([[piece.to_JSON_dict() for piece in turn] for turn in self.__turns]),
+            }
+        )
 
     def record_turn(self, pieces: list[Piece]) -> None:
         self.__turns = self.__turns[0 : self.__curr_turn + 1]
