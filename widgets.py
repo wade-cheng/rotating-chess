@@ -6,6 +6,7 @@ from pygame.locals import *
 import math
 import settings
 from pieces import Piece
+import sys, platform
 
 # gamestate is a circular import
 # this block and __future__'s annotations fixes type checking
@@ -278,9 +279,6 @@ class ConfirmRot(Button):
             gs.widgets["pieces"].selected_pieces.clear()
 
             gs.nav.record_turn(gs.widgets["pieces"].pieces)
-
-
-import sys, platform
 
 
 class NavFirst(Button):
