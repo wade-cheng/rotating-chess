@@ -58,7 +58,7 @@ class GameState:
 
         # loading assets
         self.assets: dict[str, pygame.Surface] = dict()
-        self.load_assets()
+        self.load_img_assets()
 
         self.piece_skin: settings.PieceSkin = settings.SKIN
         # invariant: forall Piece in selected_pieces, Piece.selected
@@ -83,13 +83,18 @@ class GameState:
 
         self.nav: TurnNavigation = TurnNavigation(self.widgets["pieces"].pieces)
 
-    def load_assets(self):
+    def load_img_assets(self):
         """
         loads every file in assets dir to self.assets.
         strips .png and .svg suffixes, so the surface for a file named 'queen.png'
         can be accessed with self.assets['queen']
         """
+        # TODO this sorely needs refactoring if we ever want to have more image extensions
+        # we might not want more though, to be honest. this works so it's fine.
         for file in os.listdir("assets"):
+            if not file.endswith(".png") and not file.endswith(".svg"):
+                print(f"not loading {file} with load_img_assets()")
+                continue
             self.assets[file.removesuffix(".png").removesuffix(".svg")] = pygame.image.load(f"assets/{file}")
         print(f"loaded assets:\n{self.assets.keys()}")
 
