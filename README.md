@@ -17,6 +17,8 @@ and https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces.
 
 As required from wikimedia, this work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
 
+Font from https://ninjikin.itch.io/font-hero-speak, CC-BY 4.0. (Truly love this font, looks amazing ^^)
+
 ### rules
 
 The program allows the movement and rotation of any piece at any time.

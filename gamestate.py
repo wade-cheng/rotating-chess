@@ -61,7 +61,7 @@ class GameState:
         self.load_img_assets()
 
         pygame.font.init()
-        font = pygame.font.Font('assets/hero-speak.ttf', 14)
+        self.font = pygame.font.Font("assets/hero-speak.ttf", 14)
         # text = font.render('the creator of this game said they wanted to show you something cool.', True, (0,0,0), wraplength=MAP_WIDTH - 20)
 
         self.piece_skin: settings.PieceSkin = settings.SKIN
@@ -79,8 +79,8 @@ class GameState:
             "nav_prev_btn": NavPrev(self.assets["nav_prev"], 400 + 4 + f_width, 300),
             "nav_next_btn": NavNext(self.assets["nav_next"], 400 + 5 + f_width + p_width, 300),
             "nav_last_btn": NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300),
-            "exp_save": ExportSave(self.assets["download"], 415, 10),
-            "imp_save": ImportSave(self.assets["upload"], 540, 10),
+            "exp_save": ExportSave(self.assets["download"], 415, 10, self.font),
+            "imp_save": ImportSave(self.assets["upload"], 540, 10, self.font),
         }
         # fmt: on
 
