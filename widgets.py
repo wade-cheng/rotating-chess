@@ -1,5 +1,4 @@
 from __future__ import annotations
-import json
 
 import pygame
 from pygame.locals import *
@@ -7,6 +6,8 @@ import math
 import settings
 from pieces import Piece
 import sys, platform
+from pathlib import Path
+from datetime import datetime
 
 # gamestate is a circular import
 # this block and __future__'s annotations fixes type checking
@@ -60,10 +61,9 @@ class Pieces(Widget):
             if len(self.selected_pieces) == 1:
                 only_selected = self.selected_pieces[0]
                 for point_x, point_y in only_selected.get_movable_points():
-                    if (
-                        ((x - point_x) ** 2 + (y - point_y) ** 2)
-                        < settings.HITCIRCLE_RADIUS**2
-                    ) and gs.canmove(only_selected, point_x, point_y):
+                    if (((x - point_x) ** 2 + (y - point_y) ** 2) < settings.HITCIRCLE_RADIUS**2) and gs.canmove(
+                        only_selected, point_x, point_y
+                    ):
                         gs.move(only_selected, point_x, point_y)
                         # note: gs.move() already removes the piece from selected, but we still have the pointer.
                         if only_selected.should_promote():
@@ -85,19 +85,14 @@ class Pieces(Widget):
                         gs.widgets["movesel"].reveal()
                         gs.widgets["pieces"].selected_pieces.append(piece)
                         if gs.widgets["movesel"].get_selected_point() is not None:
-                            piece.set_preview_angle(
-                                gs.widgets["movesel"].selected_angle()
-                            )
+                            piece.set_preview_angle(gs.widgets["movesel"].selected_angle())
                     else:
                         self.selected_pieces.remove(piece)
                         piece.stop_previewing()
                         if len(self.selected_pieces) == 0:
                             gs.widgets["movesel"].hide(gs)
 
-                    if (
-                        not settings.CAN_SELECT_MULTIPLE
-                        and len(self.selected_pieces) == 2
-                    ):
+                    if not settings.CAN_SELECT_MULTIPLE and len(self.selected_pieces) == 2:
                         self.selected_pieces[0].selected = False
                         self.selected_pieces[0].stop_previewing()
                         self.selected_pieces.pop(0)
@@ -167,21 +162,13 @@ class MoveSelector(Widget):
         if not self._visible:
             return
 
-        pygame.draw.circle(
-            screen, (255, 255, 255), self.__center, self.__radius, width=1
-        )
+        pygame.draw.circle(screen, (255, 255, 255), self.__center, self.__radius, width=1)
         if self.__selected_point is not None:
-            pygame.draw.line(
-                screen, (255, 255, 255), self.__selected_point, self.__center, width=1
-            )
-            pygame.draw.circle(
-                screen, (255, 0, 0), self.__selected_point, radius=5, width=1
-            )
+            pygame.draw.line(screen, (255, 255, 255), self.__selected_point, self.__center, width=1)
+            pygame.draw.circle(screen, (255, 0, 0), self.__selected_point, radius=5, width=1)
 
     def coord_collides(self, x: int, y: int) -> bool:
-        return (
-            (x - self.__center[0]) ** 2 + (y - self.__center[1]) ** 2
-        ) < self.__radius**2
+        return ((x - self.__center[0]) ** 2 + (y - self.__center[1]) ** 2) < self.__radius**2
 
     def select_rotcircle(self, x: int, y: int, gs: GameState):
         gs.widgets["confirm_rot"].reveal()
@@ -376,9 +363,7 @@ class NavLast(Button):
 
 
 class ExportSave(Button):
-    def __init__(
-        self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font
-    ) -> None:
+    def __init__(self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font) -> None:
         super().__init__(surface, x, y)
         self.hover_text = font.render(
             "export save",
@@ -386,18 +371,32 @@ class ExportSave(Button):
             color=(255, 255, 255),
             bgcolor=(181, 136, 99),
         )
+        self.hover_rect = self.hover_text.get_rect()
         self.hover_text_visible = False
         self.hover_x = 0
         self.hover_y = 0
+
+    def download_save(self, s: str):
+        Path("game_saves").mkdir(parents=True, exist_ok=True)
+
+        savepath = f"game_saves/rotchess_save_{datetime.now().isoformat().replace(':', '').split('.')[0]}"
+
+        with open(savepath, "w") as f:
+            f.write(s)
+        if sys.platform == "emscripten":
+            print("got here")
+            platform.window.MM.download(savepath)
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
             if not self.check_clicked(x, y):
                 return
 
+            save = gs.nav.get_game_save()
+            print("save:")
+            print(save)
             if sys.platform == "emscripten":
-                platform.window.alert(gs.nav.get_game_save())
-                # platform.window.alert(json.dumps(gs.widgets["pieces"].pieces))
+                self.download_save(save)
         elif e.type == pygame.MOUSEMOTION:
             if self.check_hovered(x, y):
                 self.hover_text_visible = True
@@ -408,20 +407,19 @@ class ExportSave(Button):
     def draw(self, screen: pygame.Surface, gs: GameState):
         super().draw(screen, gs)
         if self.hover_text_visible:
-            screen.blit(self.hover_text, (self.hover_x, self.hover_y))
+            screen.blit(self.hover_text, (self.hover_x - self.hover_rect.width, self.hover_y))
 
 
 class ImportSave(Button):
-    def __init__(
-        self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font
-    ) -> None:
+    def __init__(self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font) -> None:
         super().__init__(surface, x, y)
         self.hover_text = font.render(
-            "import save",
+            "[WIP] import save",
             antialias=False,
             color=(255, 255, 255),
             bgcolor=(181, 136, 99),
         )
+        self.hover_rect = self.hover_text.get_rect()
         self.hover_text_visible = False
         self.hover_x = 0
         self.hover_y = 0
@@ -440,4 +438,4 @@ class ImportSave(Button):
     def draw(self, screen: pygame.Surface, gs: GameState):
         super().draw(screen, gs)
         if self.hover_text_visible:
-            screen.blit(self.hover_text, (self.hover_x, self.hover_y))
+            screen.blit(self.hover_text, (self.hover_x - self.hover_rect.width, self.hover_y))
