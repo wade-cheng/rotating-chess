@@ -231,7 +231,7 @@ class TurnNavigation:
     """used to keep track of previous turns and has an API to navigate the board through them"""
 
     def __init__(self, pieces: list[Piece]) -> None:
-        self.__turns = [copy.deepcopy(pieces)]
+        self.__turns: list[list[Piece]] = [copy.deepcopy(pieces)]
         self.__curr_turn = 0
 
     def __len__(self) -> int:
@@ -244,6 +244,37 @@ class TurnNavigation:
                 "save": [[piece.to_JSON_dict() for piece in turn] for turn in self.__turns],
             }
         )
+
+    def load_game_save(self, s: str, gs: GameState) -> bool:
+        """
+        tries to load a game save, returning whether this succeeded
+        """
+        try:
+            s = s.strip()
+            j = json_decompress(s)
+
+            reconstructed_save: list[list[Pieces]] = []
+            save = j["save"]
+            for move in save:
+                reconstructed_save.append([])
+                for piece_dict in move:
+                    side: Side = Side.BLACK if piece_dict["side"] == 1 else Side.WHITE
+                    reconstructed_save[-1].append(
+                        Piece(
+                            piece_dict["x"],
+                            piece_dict["y"],
+                            piece_dict["angle"],
+                            side,
+                            gs.assets[f"piece_{piece_dict['piece_name']}{'B' if side == Side.BLACK else 'W'}{gs.piece_skin.value}"],
+                            piece_dict["piece_name"],
+                        )
+                    )
+            self.__turns = reconstructed_save
+            self.__curr_turn = len(self) - 1
+            self.update_state(gs)
+            return True
+        except:
+            return False
 
     def record_turn(self, pieces: list[Piece]) -> None:
         self.__turns = self.__turns[0 : self.__curr_turn + 1]

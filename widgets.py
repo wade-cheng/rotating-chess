@@ -428,6 +428,12 @@ class ImportSave(Button):
         if e.type == pygame.MOUSEBUTTONDOWN:
             if not self.check_clicked(x, y):
                 return
+
+            if sys.platform == "emscripten":
+                save = platform.window.prompt("paste game save")
+                if save is not None and not gs.nav.load_game_save(save, gs):
+                    platform.window.alert("invalid save")
+
         elif e.type == pygame.MOUSEMOTION:
             if self.check_hovered(x, y):
                 self.hover_text_visible = True
