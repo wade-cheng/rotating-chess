@@ -414,7 +414,7 @@ class ImportSave(Button):
     def __init__(self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font) -> None:
         super().__init__(surface, x, y)
         self.hover_text = font.render(
-            "[WIP] import save",
+            "import save",
             antialias=False,
             color=(255, 255, 255),
             bgcolor=(181, 136, 99),
