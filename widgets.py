@@ -433,6 +433,9 @@ class ImportSave(Button):
                 save = platform.window.prompt("paste game save")
                 if save is not None and not gs.nav.load_game_save(save, gs):
                     platform.window.alert("invalid save")
+            else:
+                if not gs.nav.load_game_save(input("paste game save > "), gs):
+                    print("invalid save")
 
         elif e.type == pygame.MOUSEMOTION:
             if self.check_hovered(x, y):

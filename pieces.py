@@ -72,7 +72,7 @@ class Piece:
             "x": self.__x,
             "y": self.__y,
             "angle": self.__angle,
-            "side": 1 if self.__side == Side.BLACK else 2,
+            "side": self.__side.value,
             "piece_name": self.__piece_name,
         }
     

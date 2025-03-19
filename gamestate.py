@@ -258,7 +258,7 @@ class TurnNavigation:
             for move in save:
                 reconstructed_save.append([])
                 for piece_dict in move:
-                    side: Side = Side.BLACK if piece_dict["side"] == 1 else Side.WHITE
+                    side: Side = Side(piece_dict["side"])
                     reconstructed_save[-1].append(
                         Piece(
                             piece_dict["x"],
