@@ -52,6 +52,9 @@ class Piece:
         self.__preview_image: pygame.Surface | None = None
         self.__piece_name: str = piece_name
 
+        self.__nonpreview_blit_coords: tuple[int, int]
+        self.__set_nonpreview_blit_rect()
+
         # the DAs calculate relative angle; they get self.__angle passed in.
         # the points are only used when only one piece is selected.
         # they are updated using the DAs on init and when we confirm a preview angle (ie update our angle)
@@ -72,6 +75,10 @@ class Piece:
             "side": 1 if self.__side == Side.BLACK else 2,
             "piece_name": self.__piece_name,
         }
+    
+    def __set_nonpreview_blit_rect(self):
+        """creates coords (from a rect) that is used to blit the current image whenever we are not in rotation preview mode"""
+        self.__nonpreview_blit_coords = self.__actual_image.get_rect(center = (self.__x, self.__y)).topleft
 
     def coord_collides(self, x: float, y: float) -> bool:
         return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < settings.HITCIRCLE_RADIUS**2
@@ -110,6 +117,7 @@ class Piece:
         self.__y = y
         self.update_capture_points()
         self.update_move_points()
+        self.__set_nonpreview_blit_rect()
 
     def get_movable_points(self) -> list[tuple[float, float]]:
         return self.__capture_points + self.__move_points
@@ -189,10 +197,11 @@ class Piece:
             )
 
         if self.__preview_angle is None and self.__preview_image is None:
-            screen.blit(self.__actual_image, (self.__x - 26, self.__y - 26))
+            screen.blit(self.__actual_image, self.__nonpreview_blit_coords)
         else:
             assert self.__preview_image is not None
-            screen.blit(self.__preview_image, (self.__x - 26, self.__y - 26))
+            pos_rect = self.__preview_image.get_rect(center = self.__actual_image.get_rect(center=(self.__x,self.__y)).center)
+            screen.blit(self.__preview_image, pos_rect)
 
     def draw_hitcircle(self, screen: pygame.Surface):
         pygame.draw.circle(
@@ -262,11 +271,15 @@ class Piece:
         self.__capture_points = self.__preview_capture_points
         self.__preview_capture_points = None
 
+        self.__set_nonpreview_blit_rect()
+
     def stop_previewing(self):
         self.__preview_angle = None
         self.__preview_image = None
         self.__preview_move_points = None
         self.__preview_capture_points = None
+
+        self.__set_nonpreview_blit_rect()
 
     def __init(self):
         self.__init_movement()
