@@ -554,7 +554,7 @@ class ExportSave(Button):
             print("got here")
             platform.window.MM.download(savepath)
         else:
-            with open(savedir / savepath, "w") as f:
+            with open(savepath, "w") as f:
                 f.write(s)
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
