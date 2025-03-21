@@ -294,6 +294,8 @@ class Piece:
         self.__angle = self.__preview_angle
         self.__preview_angle = None
 
+        assert self.__preview_move_points is not None
+        assert self.__preview_capture_points is not None
         self.__move_points = self.__preview_move_points
         self.__preview_move_points = None
         self.__capture_points = self.__preview_capture_points

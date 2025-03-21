@@ -70,7 +70,20 @@ class GameState:
 
         # fmt: off
         f_width, p_width, n_width, l_width = 58, 37, 41, 54
-        self.widgets: dict[str, Widget] = {
+        class Widgets:
+            def __init__(wself):
+                wself.pieces = Pieces()
+                wself.movesel = MoveSelector(center=(500, 200), radius=80)
+                wself.cancel_rot = CancelRot(self.assets["cross_white"], 500 - 28, 300)
+                wself.confirm_rot = ConfirmRot(self.assets["check_white"], 500 - 28, 50)
+                wself.nav_first_btn = NavFirst(self.assets["nav_first"], 400 + 3, 300)
+                wself.nav_prev_btn = NavPrev(self.assets["nav_prev"], 400 + 4 + f_width, 300)
+                wself.nav_next_btn = NavNext(self.assets["nav_next"], 400 + 5 + f_width + p_width, 300)
+                wself.nav_last_btn = NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300)
+                wself.exp_save = ExportSave(self.assets["download"], 415, 10, self.font)
+                wself.imp_save = ImportSave(self.assets["upload"], 540, 10, self.font)
+        self.widgets = Widgets()
+        {
             "pieces": Pieces(),
             "movesel": MoveSelector(center=(500, 200), radius=80),
             "cancel_rot": CancelRot(self.assets["cross_white"], 500 - 28, 300),
@@ -253,7 +266,7 @@ class TurnNavigation:
             s = s.strip()
             j = json_decompress(s)
 
-            reconstructed_save: list[list[Pieces]] = []
+            reconstructed_save: list[list[Piece]] = []
             save = j["save"]
             for move in save:
                 reconstructed_save.append([])
