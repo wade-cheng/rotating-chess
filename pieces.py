@@ -200,7 +200,7 @@ class Piece:
             screen.blit(self.__actual_image, self.__nonpreview_blit_coords)
         else:
             assert self.__preview_image is not None
-            pos_rect = self.__preview_image.get_rect(center = self.__actual_image.get_rect(center=(self.__x,self.__y)).center)
+            pos_rect = self.__preview_image.get_rect(center=self.__actual_image.get_rect(center=(self.__x, self.__y)).center)
             screen.blit(self.__preview_image, pos_rect)
 
     def draw_hitcircle(self, screen: pygame.Surface):
