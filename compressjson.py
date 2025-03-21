@@ -4,10 +4,10 @@ import zlib, json, base64
 def json_compress(j):
     """
     takes a json-encodable Any and compresses it into a base64 string.
-    
+
     >>> json_compress({"hello": "world!"})
     'eJyrVspIzcnJV7JSUCrPL8pJUVSqBQA/dAY4'
-    
+
     >>> json_compress({"not", "good!"})
     Traceback (most recent call last):
     ...

@@ -17,18 +17,19 @@ class Side(Enum):
 
 class DistsAngle:
     """immutable."""
+
     def __init__(self, distances: Iterable[float], angle: float):
         """locs must be iterable, angle in radians"""
         self.__distances = distances
         self.__angle = angle
-    
+
     def get_distances(self):
         return self.__distances
-    
+
     def get_angle(self):
         return self.__angle
 
-    def get_offsets(self, angle: float) -> Iterable[tuple[float,float]]:
+    def get_offsets(self, angle: float) -> Iterable[tuple[float, float]]:
         """angle in radians is the offset angle"""
         return (self.get_point(d, self.__angle, angle) for d in copy.copy(self.__distances))
 
@@ -84,10 +85,10 @@ class Piece:
             "side": self.__side.value,
             "piece_name": self.__piece_name,
         }
-    
+
     def __set_nonpreview_blit_rect(self):
         """creates coords (from a rect) that is used to blit the current image whenever we are not in rotation preview mode"""
-        self.__nonpreview_blit_coords = self.__actual_image.get_rect(center = (self.__x, self.__y)).topleft
+        self.__nonpreview_blit_coords = self.__actual_image.get_rect(center=(self.__x, self.__y)).topleft
 
     def coord_collides(self, x: float, y: float) -> bool:
         return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < settings.HITCIRCLE_RADIUS**2
@@ -253,20 +254,21 @@ class Piece:
         # v_hat is a "unit vector", with the unit length being the hitcircle radius.
         v_hat = pygame.math.Vector2(settings.HITCIRCLE_RADIUS, 0)
         for da in chain(self.__capture_DAs, self.__move_DAs):
-            #v_angle should be the angle the d.a. is pointing in.
-            v_angle = v_hat.rotate_rad((2*math.pi) - (self.__angle if self.__preview_angle is None else self.__preview_angle) * 1).rotate_rad(da.get_angle())
+            # v_angle should be the angle the d.a. is pointing in.
+            v_angle = v_hat.rotate_rad(
+                (2 * math.pi) - (self.__angle if self.__preview_angle is None else self.__preview_angle) * 1
+            ).rotate_rad(da.get_angle())
             v_offset = v_angle.rotate(90)
             center = pygame.math.Vector2(self.__x, self.__y)
             point: pygame.math.Vector2
-            for x, y in da.get_offsets(self.__angle if self.__preview_angle is None else self.__preview_angle): 
-                point = pygame.math.Vector2(x, y) + center # point is a point the piece can move to
+            for x, y in da.get_offsets(self.__angle if self.__preview_angle is None else self.__preview_angle):
+                point = pygame.math.Vector2(x, y) + center  # point is a point the piece can move to
                 # center = point
                 if abs(x) > 1000 or abs(y) > 1000:
                     break
             # draw from center to the furthest points
-            pygame.draw.line(screen, (255,255,255), center + v_offset, point + v_offset)
-            pygame.draw.line(screen, (255,255,255), center - v_offset, point - v_offset)
-
+            pygame.draw.line(screen, (255, 255, 255), center + v_offset, point + v_offset)
+            pygame.draw.line(screen, (255, 255, 255), center - v_offset, point - v_offset)
 
     def should_draw_point(self, x: float, y: float) -> bool:
         BOARD_SIZE = 50 * 8
