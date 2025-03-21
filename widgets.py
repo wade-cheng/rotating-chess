@@ -3,8 +3,9 @@ from __future__ import annotations
 import pygame
 from pygame.locals import *
 import math
+import random
 import settings
-from pieces import Piece
+from pieces import Piece, Side
 import sys, platform
 from pathlib import Path
 from datetime import datetime
@@ -46,6 +47,41 @@ class Widget:
         pass
 
 
+def max_hit_distance(start_x: float, start_y: float, end_x: float, end_y: float) -> float:
+    """simple distance formula + hitcirclerad"""
+    return math.sqrt((start_x - end_x) ** 2 + (start_y - end_y) ** 2) + settings.HITCIRCLE_RADIUS
+
+
+def distance(
+    start_x: float,
+    start_y: float,
+    end_x: float,
+    end_y: float,
+    point_x: float,
+    point_y: float,
+) -> float:
+    """finds the distance from a point to a line, where the line is given by two points"""
+    return abs((end_x - start_x) * (point_y - start_y) - (point_x - start_x) * (end_y - start_y)) / math.sqrt(
+        (end_x - start_x) ** 2 + (end_y - start_y) ** 2
+    )
+
+
+def scalar_comp(
+    start_x: float,
+    start_y: float,
+    point_x: float,
+    point_y: float,
+    dir_x: float,
+    dir_y: float,
+) -> float:
+    """finds the scalar composition of vectors point in the direction of dir where the vectors have starting point start"""
+    # scalar comp of v in the direction of u: we find u dot v / magn(u)
+    u = [dir_x - start_x, dir_y - start_y]
+    v = [point_x - start_x, point_y - start_y]
+
+    return (u[0] * v[0] + u[1] * v[1]) / math.sqrt(u[0] ** 2 + u[1] ** 2)
+
+
 class Pieces(Widget):
     def __init__(self) -> None:
         self.skin = settings.SKIN
@@ -64,13 +100,13 @@ class Pieces(Widget):
             if len(self.selected_pieces) == 1:
                 only_selected = self.selected_pieces[0]
                 for point_x, point_y in only_selected.get_movable_points():
-                    if (((x - point_x) ** 2 + (y - point_y) ** 2) < settings.HITCIRCLE_RADIUS**2) and gs.canmove(
+                    if (((x - point_x) ** 2 + (y - point_y) ** 2) < settings.HITCIRCLE_RADIUS**2) and self.canmove(
                         only_selected, point_x, point_y
                     ):
-                        gs.move(only_selected, point_x, point_y)
-                        # note: gs.move() already removes the piece from selected, but we still have the pointer.
+                        self.move(only_selected, point_x, point_y, gs)
+                        # note: self.move() already removes the piece from selected, but we still have the pointer.
                         if only_selected.should_promote():
-                            gs.promote(only_selected)
+                            self.promote(only_selected)
 
                         moved_piece = True
                         break
@@ -120,6 +156,132 @@ class Pieces(Widget):
             self.selected_pieces[0].draw_move_points(screen)
             self.selected_pieces[0].draw_capture_points(screen)
             self.selected_pieces[0].draw_guide_lines(screen)
+
+    def canmove(self, only_selected: Piece, point_x: float, point_y: float) -> bool:
+        """checks if we can move the only selected piece to point_x, point_y"""
+        assert len(self.selected_pieces) == 1
+
+        pieces_overlapping_endpoint = 0
+
+        # disallow capturing own side. also update how many pieces overlap the endpoint
+        for piece in self.pieces:
+            if piece == only_selected:
+                continue
+
+            if piece.piece_collides(point_x, point_y):
+                pieces_overlapping_endpoint += 1
+
+                if piece.get_side() == only_selected.get_side():
+                    return False
+
+        if only_selected.can_jump:
+            return True
+
+        in_the_way: int = 0
+        for piece in self.pieces:
+            if piece == only_selected:
+                continue
+
+            if (
+                0
+                < scalar_comp(
+                    only_selected.get_x(),
+                    only_selected.get_y(),
+                    piece.get_x(),
+                    piece.get_y(),
+                    point_x,
+                    point_y,
+                )
+                < max_hit_distance(only_selected.get_x(), only_selected.get_y(), point_x, point_y)
+            ):
+                # piece is within correct distance to block. now check:
+                if (
+                    distance(
+                        only_selected.get_x(),
+                        only_selected.get_y(),
+                        point_x,
+                        point_y,
+                        piece.get_x(),
+                        piece.get_y(),
+                    )
+                    < 2 * settings.HITCIRCLE_RADIUS
+                ):
+                    # piece is within correct point to line distance to block. we may be blocked unless we can capture this piece.
+                    in_the_way += 1
+        #     if piece in the scalar projection direction is >= 0 but < the max hit distance
+        #     and if piece is less than 2*hitcirclerad away from line:
+        #         in_the_way.append(piece)
+
+        print(f"inway: {in_the_way}, overlaps: {pieces_overlapping_endpoint}")
+        if in_the_way > pieces_overlapping_endpoint:
+            return False
+        # if len(in_the_way) > len(pieces overlapping endpoint):
+        #     return False
+
+        return True
+
+    def move(self, only_selected: Piece, point_x: float, point_y: float, gs: GameState | None):
+        """
+        moves only_selected to x,y, capturing any overlapping pieces.
+        use with gs=None in testing when we create a board without visualization.
+        """
+        assert len(self.selected_pieces) == 1
+
+        only_selected.move(point_x, point_y)
+
+        for piece in self.pieces:
+            if piece == only_selected:
+                continue
+
+            if only_selected.piece_collides(piece.get_x(), piece.get_y()):
+                self.pieces.remove(piece)
+
+        # after moving, automatically deselect the piece and spinner
+        only_selected.selected = False
+        self.selected_pieces.pop()
+        if gs is not None:
+            gs.widgets.movesel.hide(gs)
+
+    def promote(self, piece: Piece, assets: dict[str, pygame.Surface], piece_skin: settings.PieceSkin):
+        x, y, rad, side = (
+            piece.get_x(),
+            piece.get_y(),
+            piece.get_angle(),
+            piece.get_side(),
+        )
+        self.pieces.remove(piece)
+        if side == Side.BLACK:
+            side_str = "B"
+        elif side == Side.WHITE:
+            side_str = "W"
+        self.pieces.append(Piece(x, y, rad, side, assets[f"piece_queen{side_str}{piece_skin.value}"], "queen"))  # fmt: skip
+
+    # fmt: off
+    def load_normal_board(self, assets: dict[str, pygame.Surface], piece_skin: settings.PieceSkin):
+        self.pieces.clear()
+        for x_pos in range(25, 50*8, 50):
+            self.pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
+
+        order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
+        for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
+            self.pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
+    # fmt: on
+
+    # fmt: off
+    def load_chess_960(self, assets: dict[str, pygame.Surface], piece_skin: settings.PieceSkin):
+        self.pieces.clear()
+        for x_pos in range(25, 50*8, 50):
+            self.pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
+
+        order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
+        random.shuffle(order)
+        for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
+            self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
+    # fmt: on
 
 
 class MoveSelector(Widget):
@@ -452,3 +614,9 @@ class ImportSave(Button):
         super().draw(screen, gs)
         if self.hover_text_visible:
             screen.blit(self.hover_text, (self.hover_x - self.hover_rect.width, self.hover_y))
+
+if __name__ == "__main__":
+    print(f"d={distance(0,0, 10,0, 4,3)}")
+    print(f"d={distance(2,0, 0,2, 0,0)}")
+
+    print(f"comp={scalar_comp(1,1, 5,5, 5,1)}")
