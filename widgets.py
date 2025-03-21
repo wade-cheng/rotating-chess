@@ -76,7 +76,7 @@ class Pieces(Widget):
                         break
 
             if moved_piece:
-                gs.nav.record_turn(gs.widgets["pieces"].pieces)
+                gs.nav.record_turn(gs.widgets.pieces.pieces)
                 return
 
             # check if we've clicked a piece
@@ -84,30 +84,30 @@ class Pieces(Widget):
                 if piece.coord_collides(x, y):
                     piece.selected = not piece.selected
                     if piece.selected:
-                        gs.widgets["cancel_rot"].reveal()
-                        gs.widgets["movesel"].reveal()
-                        gs.widgets["pieces"].selected_pieces.append(piece)
-                        if gs.widgets["movesel"].get_selected_point() is not None:
-                            piece.set_preview_angle(gs.widgets["movesel"].selected_angle())
+                        gs.widgets.cancel_rot.reveal()
+                        gs.widgets.movesel.reveal()
+                        gs.widgets.pieces.selected_pieces.append(piece)
+                        if gs.widgets.movesel.get_selected_point() is not None:
+                            piece.set_preview_angle(gs.widgets.movesel.selected_angle())
                     else:
                         self.selected_pieces.remove(piece)
                         piece.stop_previewing()
                         if len(self.selected_pieces) == 0:
-                            gs.widgets["movesel"].hide(gs)
+                            gs.widgets.movesel.hide(gs)
 
                     if not settings.CAN_SELECT_MULTIPLE and len(self.selected_pieces) == 2:
                         self.selected_pieces[0].selected = False
                         self.selected_pieces[0].stop_previewing()
                         self.selected_pieces.pop(0)
                         self.selected_pieces[0].stop_previewing()
-                        gs.widgets["movesel"].hide(gs)
-                        gs.widgets["cancel_rot"].reveal()
-                        gs.widgets["movesel"].reveal()
+                        gs.widgets.movesel.hide(gs)
+                        gs.widgets.cancel_rot.reveal()
+                        gs.widgets.movesel.reveal()
 
                     # if len(self.selected_pieces) != 0:
-                    #     gs.widgets["movesel"].reveal()
+                    #     gs.widgets.movesel.reveal()
                     # else:
-                    #     gs.widgets["movesel"].hide(gs)
+                    #     gs.widgets.movesel.hide(gs)
 
     def draw(self, screen: pygame.Surface, gs: GameState):
         # draw pieces
@@ -139,8 +139,8 @@ class MoveSelector(Widget):
     def hide(self, gs: GameState):
         self._visible = False
         self.__selected_point = None
-        gs.widgets["cancel_rot"].hide(gs)
-        gs.widgets["confirm_rot"].hide(gs)
+        gs.widgets.cancel_rot.hide(gs)
+        gs.widgets.confirm_rot.hide(gs)
 
     def is_visible(self) -> bool:
         return self._visible
@@ -158,7 +158,7 @@ class MoveSelector(Widget):
                 return
 
             self.select_rotcircle(x, y, gs)
-            for piece in gs.widgets["pieces"].selected_pieces:
+            for piece in gs.widgets.pieces.selected_pieces:
                 piece.update_capture_points()
                 piece.update_move_points()
 
@@ -175,12 +175,12 @@ class MoveSelector(Widget):
         return ((x - self.__center[0]) ** 2 + (y - self.__center[1]) ** 2) < self.__radius**2
 
     def select_rotcircle(self, x: int, y: int, gs: GameState):
-        gs.widgets["confirm_rot"].reveal()
+        gs.widgets.confirm_rot.reveal()
 
         self.__selected_point = (x, y)
 
         theta: float = self.selected_angle()
-        for piece in gs.widgets["pieces"].selected_pieces:
+        for piece in gs.widgets.pieces.selected_pieces:
             piece.set_preview_angle(theta)
 
     def selected_angle(self) -> float:
@@ -247,19 +247,19 @@ class CancelRot(Button):
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
-            if not gs.widgets["cancel_rot"].is_visible():
+            if not gs.widgets.cancel_rot.is_visible():
                 return
 
             if not self.check_clicked(x, y):
                 return
 
-            gs.widgets["movesel"].hide(gs)
-            for piece in gs.widgets["pieces"].selected_pieces:
+            gs.widgets.movesel.hide(gs)
+            for piece in gs.widgets.pieces.selected_pieces:
                 # according to invariant, this should set all to false.
                 # setting not piece.selected is sorta like verifying invariant
                 piece.selected = not piece.selected
                 piece.stop_previewing()
-            gs.widgets["pieces"].selected_pieces.clear()
+            gs.widgets.pieces.selected_pieces.clear()
 
 
 class ConfirmRot(Button):
@@ -269,21 +269,21 @@ class ConfirmRot(Button):
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
-            if not gs.widgets["confirm_rot"].is_visible():
+            if not gs.widgets.confirm_rot.is_visible():
                 return
 
             if not self.check_clicked(x, y):
                 return
 
-            gs.widgets["movesel"].hide(gs)
-            for piece in gs.widgets["pieces"].selected_pieces:
+            gs.widgets.movesel.hide(gs)
+            for piece in gs.widgets.pieces.selected_pieces:
                 # according to invariant, this should set all to false.
                 # setting not piece.selected is sorta like verifying invariant
                 piece.selected = not piece.selected
                 piece.confirm_preview()
-            gs.widgets["pieces"].selected_pieces.clear()
+            gs.widgets.pieces.selected_pieces.clear()
 
-            gs.nav.record_turn(gs.widgets["pieces"].pieces)
+            gs.nav.record_turn(gs.widgets.pieces.pieces)
 
 
 class NavFirst(Button):
@@ -292,7 +292,7 @@ class NavFirst(Button):
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
-            if gs.widgets["cancel_rot"].is_visible():
+            if gs.widgets.cancel_rot.is_visible():
                 return
 
             if not self.check_clicked(x, y):
@@ -302,7 +302,7 @@ class NavFirst(Button):
             gs.nav.update_state(gs)
 
     def draw(self, screen: pygame.Surface, gs: GameState):
-        if not gs.widgets["cancel_rot"].is_visible():
+        if not gs.widgets.cancel_rot.is_visible():
             super().draw(screen, gs)
 
 
@@ -312,7 +312,7 @@ class NavPrev(Button):
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
-            if gs.widgets["cancel_rot"].is_visible():
+            if gs.widgets.cancel_rot.is_visible():
                 return
 
             if not self.check_clicked(x, y):
@@ -322,7 +322,7 @@ class NavPrev(Button):
             gs.nav.update_state(gs)
 
     def draw(self, screen: pygame.Surface, gs: GameState):
-        if not gs.widgets["cancel_rot"].is_visible():
+        if not gs.widgets.cancel_rot.is_visible():
             super().draw(screen, gs)
 
 
@@ -332,7 +332,7 @@ class NavNext(Button):
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
-            if gs.widgets["cancel_rot"].is_visible():
+            if gs.widgets.cancel_rot.is_visible():
                 return
 
             if not self.check_clicked(x, y):
@@ -342,7 +342,7 @@ class NavNext(Button):
             gs.nav.update_state(gs)
 
     def draw(self, screen: pygame.Surface, gs: GameState):
-        if not gs.widgets["cancel_rot"].is_visible():
+        if not gs.widgets.cancel_rot.is_visible():
             super().draw(screen, gs)
 
 
@@ -352,7 +352,7 @@ class NavLast(Button):
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
-            if gs.widgets["cancel_rot"].is_visible():
+            if gs.widgets.cancel_rot.is_visible():
                 return
 
             if not self.check_clicked(x, y):
@@ -362,7 +362,7 @@ class NavLast(Button):
             gs.nav.update_state(gs)
 
     def draw(self, screen: pygame.Surface, gs: GameState):
-        if not gs.widgets["cancel_rot"].is_visible():
+        if not gs.widgets.cancel_rot.is_visible():
             super().draw(screen, gs)
 
 

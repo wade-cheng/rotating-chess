@@ -23,7 +23,7 @@ def update(gs: GameState):
         pygame.event.post(Event(MOUSE_HELD))
 
     for event in pygame.event.get():
-        for widget in gs.widgets.values():
+        for widget in gs.widgets.__dict__.values():
             widget.handle_event(event, gs, x, y)
 
         if event.type == QUIT:
@@ -52,7 +52,7 @@ def draw(screen: pygame.Surface, gs: GameState):
     pygame.draw.rect(screen, settings.BOARD_COLOR, (8 * 50, 0, 4 * 50, 8 * 50))
 
     # draw widgets
-    for widget in gs.widgets.values():
+    for widget in gs.widgets.__dict__.values():
         widget.draw(screen, gs)
 
     pygame.display.update()

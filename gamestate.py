@@ -71,6 +71,11 @@ class GameState:
         # fmt: off
         f_width, p_width, n_width, l_width = 58, 37, 41, 54
         class Widgets:
+            """
+            we essentially create a typed dict. 
+            this is just to make stuff more explicit.
+            e.g. `gs.widgets.pieces` instead of `gs.pieces`.
+            """
             def __init__(wself):
                 wself.pieces = Pieces()
                 wself.movesel = MoveSelector(center=(500, 200), radius=80)
@@ -82,25 +87,14 @@ class GameState:
                 wself.nav_last_btn = NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300)
                 wself.exp_save = ExportSave(self.assets["download"], 415, 10, self.font)
                 wself.imp_save = ImportSave(self.assets["upload"], 540, 10, self.font)
+            __dict__: dict[str, Widget]
         self.widgets = Widgets()
-        {
-            "pieces": Pieces(),
-            "movesel": MoveSelector(center=(500, 200), radius=80),
-            "cancel_rot": CancelRot(self.assets["cross_white"], 500 - 28, 300),
-            "confirm_rot": ConfirmRot(self.assets["check_white"], 500 - 28, 50),
-            "nav_first_btn": NavFirst(self.assets["nav_first"], 400 + 3, 300),
-            "nav_prev_btn": NavPrev(self.assets["nav_prev"], 400 + 4 + f_width, 300),
-            "nav_next_btn": NavNext(self.assets["nav_next"], 400 + 5 + f_width + p_width, 300),
-            "nav_last_btn": NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300),
-            "exp_save": ExportSave(self.assets["download"], 415, 10, self.font),
-            "imp_save": ImportSave(self.assets["upload"], 540, 10, self.font),
-        }
         # fmt: on
 
         # self.load_chess_960()
         self.load_normal_board()
 
-        self.nav: TurnNavigation = TurnNavigation(self.widgets["pieces"].pieces)
+        self.nav: TurnNavigation = TurnNavigation(self.widgets.pieces.pieces)
 
     def load_img_assets(self):
         """
@@ -119,12 +113,12 @@ class GameState:
 
     def canmove(self, only_selected: Piece, point_x: float, point_y: float) -> bool:
         """checks if we can move the only selected piece to point_x, point_y"""
-        assert len(self.widgets["pieces"].selected_pieces) == 1
+        assert len(self.widgets.pieces.selected_pieces) == 1
 
         pieces_overlapping_endpoint = 0
 
         # disallow capturing own side. also update how many pieces overlap the endpoint
-        for piece in self.widgets["pieces"].pieces:
+        for piece in self.widgets.pieces.pieces:
             if piece == only_selected:
                 continue
 
@@ -138,7 +132,7 @@ class GameState:
             return True
 
         in_the_way: int = 0
-        for piece in self.widgets["pieces"].pieces:
+        for piece in self.widgets.pieces.pieces:
             if piece == only_selected:
                 continue
 
@@ -182,21 +176,21 @@ class GameState:
 
     def move(self, only_selected: Piece, point_x: float, point_y: float):
         """moves only_selected to x,y, capturing any overlapping pieces"""
-        assert len(self.widgets["pieces"].selected_pieces) == 1
+        assert len(self.widgets.pieces.selected_pieces) == 1
 
         only_selected.move(point_x, point_y)
 
-        for piece in self.widgets["pieces"].pieces:
+        for piece in self.widgets.pieces.pieces:
             if piece == only_selected:
                 continue
 
             if only_selected.piece_collides(piece.get_x(), piece.get_y()):
-                self.widgets["pieces"].pieces.remove(piece)
+                self.widgets.pieces.pieces.remove(piece)
 
         # after moving, automatically deselect the piece and spinner
         only_selected.selected = False
-        self.widgets["pieces"].selected_pieces.pop()
-        self.widgets["movesel"].hide(self)
+        self.widgets.pieces.selected_pieces.pop()
+        self.widgets.movesel.hide(self)
 
     def promote(self, piece: Piece):
         x, y, rad, side = (
@@ -205,38 +199,38 @@ class GameState:
             piece.get_angle(),
             piece.get_side(),
         )
-        self.widgets["pieces"].pieces.remove(piece)
+        self.widgets.pieces.pieces.remove(piece)
         if side == Side.BLACK:
             side_str = "B"
         elif side == Side.WHITE:
             side_str = "W"
-        self.widgets["pieces"].pieces.append(Piece(x, y, rad, side, self.assets[f"piece_queen{side_str}{self.piece_skin.value}"], "queen"))  # fmt: skip
+        self.widgets.pieces.pieces.append(Piece(x, y, rad, side, self.assets[f"piece_queen{side_str}{self.piece_skin.value}"], "queen"))  # fmt: skip
 
     # fmt: off
     def load_normal_board(self):
-        self.widgets["pieces"].pieces.clear()
+        self.widgets.pieces.pieces.clear()
         for x_pos in range(25, 50*8, 50):
-            self.widgets["pieces"].pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin.value}"], "pawn"))
-            self.widgets["pieces"].pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, self.assets[f"piece_pawnW{self.piece_skin.value}"], "pawn"))
+            self.widgets.pieces.pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin.value}"], "pawn"))
+            self.widgets.pieces.pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, self.assets[f"piece_pawnW{self.piece_skin.value}"], "pawn"))
 
         order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
         for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
-            self.widgets["pieces"].pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin.value}"], order[orderidx]))
-            self.widgets["pieces"].pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin.value}"], order[orderidx]))
+            self.widgets.pieces.pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin.value}"], order[orderidx]))
+            self.widgets.pieces.pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin.value}"], order[orderidx]))
     # fmt: on
 
     # fmt: off
     def load_chess_960(self):
-        self.widgets["pieces"].pieces.clear()
+        self.widgets.pieces.pieces.clear()
         for x_pos in range(25, 50*8, 50):
-            self.widgets["pieces"].pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin.value}"], "pawn"))
-            self.widgets["pieces"].pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_pawnW{self.piece_skin.value}"], "pawn"))
+            self.widgets.pieces.pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin.value}"], "pawn"))
+            self.widgets.pieces.pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_pawnW{self.piece_skin.value}"], "pawn"))
 
         order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
         random.shuffle(order)
         for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
-            self.widgets["pieces"].pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin.value}"], order[orderidx]))
-            self.widgets["pieces"].pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin.value}"], order[orderidx]))
+            self.widgets.pieces.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, self.assets[f"piece_{order[orderidx]}B{self.piece_skin.value}"], order[orderidx]))
+            self.widgets.pieces.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, self.assets[f"piece_{order[orderidx]}W{self.piece_skin.value}"], order[orderidx]))
     # fmt: on
 
 
@@ -295,7 +289,7 @@ class TurnNavigation:
         self.__curr_turn += 1
 
     def update_state(self, gs: GameState):
-        gs.widgets["pieces"].pieces = copy.deepcopy(self.__turns[self.__curr_turn])
+        gs.widgets.pieces.pieces = copy.deepcopy(self.__turns[self.__curr_turn])
 
     def first(self) -> None:
         """presses first button. may or may not be a noop"""
