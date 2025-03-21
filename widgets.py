@@ -119,6 +119,7 @@ class Pieces(Widget):
         if len(self.selected_pieces) == 1:
             self.selected_pieces[0].draw_move_points(screen)
             self.selected_pieces[0].draw_capture_points(screen)
+            self.selected_pieces[0].draw_guide_lines(screen)
 
 
 class MoveSelector(Widget):

@@ -1,4 +1,3 @@
-import json
 import math
 import settings
 import pygame
@@ -7,6 +6,8 @@ from debug import *
 import itertools
 import copy
 from enum import Enum
+from itertools import chain
+from collections.abc import Iterable
 
 
 class Side(Enum):
@@ -15,12 +16,19 @@ class Side(Enum):
 
 
 class DistsAngle:
-    def __init__(self, distances: range | list | itertools.count, angle: float):
+    """immutable."""
+    def __init__(self, distances: Iterable[float], angle: float):
         """locs must be iterable, angle in radians"""
         self.__distances = distances
         self.__angle = angle
+    
+    def get_distances(self):
+        return self.__distances
+    
+    def get_angle(self):
+        return self.__angle
 
-    def get_points(self, angle):
+    def get_offsets(self, angle: float) -> Iterable[tuple[float,float]]:
         """angle in radians is the offset angle"""
         return (self.get_point(d, self.__angle, angle) for d in copy.copy(self.__distances))
 
@@ -40,6 +48,7 @@ class Piece:
         img: pygame.Surface,
         piece_name: str,
     ):
+        # coordinates represent the CENTER of the piece.
         self.__x = x
         self.__y = y
         # angle is in radians
@@ -131,7 +140,7 @@ class Piece:
             angle = self.__preview_angle
 
         for cap_DA in self.__capture_DAs:
-            for x, y in cap_DA.get_points(angle):
+            for x, y in cap_DA.get_offsets(angle):
                 point = (x + self.__x, y + self.__y)
                 if not self.should_draw_point(point[0], point[1]):
                     break
@@ -150,7 +159,7 @@ class Piece:
             angle = self.__preview_angle
 
         for cap_DA in self.__capture_DAs:
-            for x, y in cap_DA.get_points(angle):
+            for x, y in cap_DA.get_offsets(angle):
                 point = (x + self.__x, y + self.__y)
                 if not self.should_draw_point(point[0], point[1]):
                     break
@@ -162,7 +171,7 @@ class Piece:
         self.__move_points.clear()
 
         for move_DA in self.__move_DAs:
-            for x, y in move_DA.get_points(self.__angle):
+            for x, y in move_DA.get_offsets(self.__angle):
                 point = (x + self.__x, y + self.__y)
                 if not self.should_draw_point(point[0], point[1]):
                     break
@@ -180,7 +189,7 @@ class Piece:
             angle = self.__preview_angle
 
         for move_DA in self.__move_DAs:
-            for x, y in move_DA.get_points(angle):
+            for x, y in move_DA.get_offsets(angle):
                 point = (x + self.__x, y + self.__y)
                 if not self.should_draw_point(point[0], point[1]):
                     break
@@ -239,6 +248,25 @@ class Piece:
                 settings.HITCIRCLE_RADIUS,
                 width=1,
             )
+
+    def draw_guide_lines(self, screen: pygame.Surface):
+        # v_hat is a "unit vector", with the unit length being the hitcircle radius.
+        v_hat = pygame.math.Vector2(settings.HITCIRCLE_RADIUS, 0)
+        for da in chain(self.__capture_DAs, self.__move_DAs):
+            #v_angle should be the angle the d.a. is pointing in.
+            v_angle = v_hat.rotate_rad((2*math.pi) - (self.__angle if self.__preview_angle is None else self.__preview_angle) * 1).rotate_rad(da.get_angle())
+            v_offset = v_angle.rotate(90)
+            center = pygame.math.Vector2(self.__x, self.__y)
+            point: pygame.math.Vector2
+            for x, y in da.get_offsets(self.__angle if self.__preview_angle is None else self.__preview_angle): 
+                point = pygame.math.Vector2(x, y) + center # point is a point the piece can move to
+                # center = point
+                if abs(x) > 1000 or abs(y) > 1000:
+                    break
+            # draw from center to the furthest points
+            pygame.draw.line(screen, (255,255,255), center + v_offset, point + v_offset)
+            pygame.draw.line(screen, (255,255,255), center - v_offset, point - v_offset)
+
 
     def should_draw_point(self, x: float, y: float) -> bool:
         BOARD_SIZE = 50 * 8
@@ -396,7 +424,7 @@ class Piece:
 if __name__ == "__main__":
     d = DistsAngle(range(4), math.pi / 4)
     d = DistsAngle(itertools.count(step=1), math.pi / 8)
-    for x, y in d.get_points(0):
+    for x, y in d.get_offsets(0):
         print(f"({x},{y})")
         if abs(x) > 20 or abs(y) > 20:
             break
