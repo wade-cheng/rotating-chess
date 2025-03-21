@@ -543,7 +543,8 @@ class ExportSave(Button):
         self.hover_y = 0
 
     def download_save(self, s: str):
-        Path("game_saves").mkdir(parents=True, exist_ok=True)
+        savedir = Path("game_saves")
+        savedir.mkdir(parents=True, exist_ok=True)
 
         savepath = f"game_saves/rotchess_save_{datetime.now().isoformat().replace(':', '').split('.')[0]}"
 
@@ -552,6 +553,9 @@ class ExportSave(Button):
         if sys.platform == "emscripten":
             print("got here")
             platform.window.MM.download(savepath)
+        else:
+            with open(savedir / savepath, "w") as f:
+                f.write(s)
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
@@ -561,8 +565,7 @@ class ExportSave(Button):
             save = gs.nav.get_game_save()
             print("save:")
             print(save)
-            if sys.platform == "emscripten":
-                self.download_save(save)
+            self.download_save(save)
         elif e.type == pygame.MOUSEMOTION:
             if self.check_hovered(x, y):
                 self.hover_text_visible = True
