@@ -52,10 +52,13 @@ class Pieces(Widget):
         self.pieces: list[Piece] = []
         # invariant: forall Piece in selected_pieces, Piece.selected
         # invariant: forall Piece not in selected_pieces, not Piece.selected
+        # checked every time we MOUSEBUTTONDOWN
         self.selected_pieces: list[Piece] = []
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
+            assert all(p.selected for p in self.selected_pieces)
+            assert all(not p.selected for p in set(self.pieces) - set(self.selected_pieces))
             # check and update if we've moved a piece, promoting as needed
             moved_piece = False
             if len(self.selected_pieces) == 1:
