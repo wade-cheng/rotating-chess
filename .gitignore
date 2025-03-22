@@ -3,3 +3,5 @@ build
 dist
 game_saves
 .mypy_cache
+.venv
+.pytest_cache
