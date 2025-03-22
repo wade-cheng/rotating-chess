@@ -17,6 +17,7 @@ if sys.platform == "emscripten":
 
 os.environ["DEBUG_ROTCHESS"] = "True"
 
+
 def update(gs: GameState):
     widgets.Button.one_clicked = False
     x, y = pygame.mouse.get_pos()

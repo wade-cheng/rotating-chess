@@ -84,7 +84,7 @@ def scalar_comp(
 
 
 class Pieces(Widget):
-    def __init__(self, pieces: list[Piece]=[]) -> None:
+    def __init__(self, pieces: list[Piece] = []) -> None:
         self.skin = settings.SKIN
         self.pieces: list[Piece] = pieces
         # invariant: forall Piece in selected_pieces, Piece.selected
@@ -623,6 +623,7 @@ class ImportSave(Button):
         super().draw(screen, gs)
         if self.hover_text_visible:
             screen.blit(self.hover_text, (self.hover_x - self.hover_rect.width, self.hover_y))
+
 
 if __name__ == "__main__":
     print(f"d={distance(0,0, 10,0, 4,3)}")

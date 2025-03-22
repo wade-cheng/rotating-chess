@@ -93,7 +93,9 @@ class Piece:
 
     def __set_nonpreview_blit_rect(self):
         """creates coords (from a rect) that is used to blit the current image whenever we are not in rotation preview mode"""
-        self.__nonpreview_blit_coords = None if self.__actual_image is None else self.__actual_image.get_rect(center=(self.__x, self.__y)).topleft
+        self.__nonpreview_blit_coords = (
+            None if self.__actual_image is None else self.__actual_image.get_rect(center=(self.__x, self.__y)).topleft
+        )
 
     def coord_collides(self, x: float, y: float) -> bool:
         return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < settings.HITCIRCLE_RADIUS**2
