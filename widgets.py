@@ -48,9 +48,14 @@ class Widget:
         pass
 
 
-def max_hit_distance(start_x: float, start_y: float, end_x: float, end_y: float) -> float:
+def max_hit_distance(
+    start_x: float, start_y: float, end_x: float, end_y: float
+) -> float:
     """simple distance formula + hitcirclerad"""
-    return math.sqrt((start_x - end_x) ** 2 + (start_y - end_y) ** 2) + settings.HITCIRCLE_RADIUS
+    return (
+        math.sqrt((start_x - end_x) ** 2 + (start_y - end_y) ** 2)
+        + settings.HITCIRCLE_RADIUS
+    )
 
 
 def distance(
@@ -62,9 +67,10 @@ def distance(
     point_y: float,
 ) -> float:
     """finds the distance from a point to a line, where the line is given by two points"""
-    return abs((end_x - start_x) * (point_y - start_y) - (point_x - start_x) * (end_y - start_y)) / math.sqrt(
-        (end_x - start_x) ** 2 + (end_y - start_y) ** 2
-    )
+    return abs(
+        (end_x - start_x) * (point_y - start_y)
+        - (point_x - start_x) * (end_y - start_y)
+    ) / math.sqrt((end_x - start_x) ** 2 + (end_y - start_y) ** 2)
 
 
 def scalar_comp(
@@ -95,15 +101,18 @@ class Pieces(Widget):
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
             assert all(p.selected for p in self.selected_pieces)
-            assert all(not p.selected for p in set(self.pieces) - set(self.selected_pieces))
+            assert all(
+                not p.selected for p in set(self.pieces) - set(self.selected_pieces)
+            )
             # check and update if we've moved a piece, promoting as needed
             moved_piece = False
             if len(self.selected_pieces) == 1:
                 only_selected = self.selected_pieces[0]
                 for point_x, point_y in only_selected.get_movable_points():
-                    if (((x - point_x) ** 2 + (y - point_y) ** 2) < settings.HITCIRCLE_RADIUS**2) and self.canmove(
-                        only_selected, point_x, point_y
-                    ):
+                    if (
+                        ((x - point_x) ** 2 + (y - point_y) ** 2)
+                        < settings.HITCIRCLE_RADIUS**2
+                    ) and self.canmove(only_selected, point_x, point_y):
                         self.move(only_selected, point_x, point_y, gs)
                         # note: self.move() already removes the piece from selected, but we still have the pointer.
                         if only_selected.should_promote():
@@ -132,7 +141,10 @@ class Pieces(Widget):
                         if len(self.selected_pieces) == 0:
                             gs.widgets.movesel.hide(gs)
 
-                    if not settings.CAN_SELECT_MULTIPLE and len(self.selected_pieces) == 2:
+                    if (
+                        not settings.CAN_SELECT_MULTIPLE
+                        and len(self.selected_pieces) == 2
+                    ):
                         self.selected_pieces[0].selected = False
                         self.selected_pieces[0].stop_previewing()
                         self.selected_pieces.pop(0)
@@ -193,7 +205,9 @@ class Pieces(Widget):
                     point_x,
                     point_y,
                 )
-                < max_hit_distance(only_selected.get_x(), only_selected.get_y(), point_x, point_y)
+                < max_hit_distance(
+                    only_selected.get_x(), only_selected.get_y(), point_x, point_y
+                )
             ):
                 # piece is within correct distance to block. now check:
                 if (
@@ -223,7 +237,9 @@ class Pieces(Widget):
 
         return True
 
-    def move(self, only_selected: Piece, point_x: float, point_y: float, gs: GameState | None):
+    def move(
+        self, only_selected: Piece, point_x: float, point_y: float, gs: GameState | None
+    ):
         """
         moves only_selected to x,y, capturing any overlapping pieces.
         use with gs=None in testing when we create a board without visualization.
@@ -245,7 +261,12 @@ class Pieces(Widget):
         if gs is not None:
             gs.widgets.movesel.hide(gs)
 
-    def promote(self, piece: Piece, assets: dict[str, pygame.Surface], piece_skin: settings.PieceSkin):
+    def promote(
+        self,
+        piece: Piece,
+        assets: dict[str, pygame.Surface],
+        piece_skin: settings.PieceSkin,
+    ):
         x, y, rad, side = (
             piece.get_x(),
             piece.get_y(),
@@ -266,13 +287,13 @@ class Pieces(Widget):
         """
         self.pieces.clear()
         for x_pos in range(25, 50*8, 50):
-            self.pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, None if assets is None else assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
-            self.pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, None if assets is None else assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, None if assets is None or piece_skin is None else assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, None if assets is None or piece_skin is None else assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
 
         order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
         for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
-            self.pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, None if assets is None else assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
-            self.pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, None if assets is None else assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, None if assets is None or piece_skin is None else assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, None if assets is None or piece_skin is None else assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
     # fmt: on
 
     # fmt: off
@@ -282,14 +303,14 @@ class Pieces(Widget):
         """
         self.pieces.clear()
         for x_pos in range(25, 50*8, 50):
-            self.pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, None if assets is None else assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
-            self.pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, None if assets is None else assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, None if assets is None or piece_skin is None else assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, None if assets is None or piece_skin is None else assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
 
         order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
         random.shuffle(order)
         for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
-            self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, None if assets is None else assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
-            self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, None if assets is None else assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, None if assets is None or piece_skin is None else assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, None if assets is None or piece_skin is None else assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
     # fmt: on
 
 
@@ -337,13 +358,21 @@ class MoveSelector(Widget):
         if not self._visible:
             return
 
-        pygame.draw.circle(screen, (255, 255, 255), self.__center, self.__radius, width=1)
+        pygame.draw.circle(
+            screen, (255, 255, 255), self.__center, self.__radius, width=1
+        )
         if self.__selected_point is not None:
-            pygame.draw.line(screen, (255, 255, 255), self.__selected_point, self.__center, width=1)
-            pygame.draw.circle(screen, (255, 0, 0), self.__selected_point, radius=5, width=1)
+            pygame.draw.line(
+                screen, (255, 255, 255), self.__selected_point, self.__center, width=1
+            )
+            pygame.draw.circle(
+                screen, (255, 0, 0), self.__selected_point, radius=5, width=1
+            )
 
     def coord_collides(self, x: int, y: int) -> bool:
-        return ((x - self.__center[0]) ** 2 + (y - self.__center[1]) ** 2) < self.__radius**2
+        return (
+            (x - self.__center[0]) ** 2 + (y - self.__center[1]) ** 2
+        ) < self.__radius**2
 
     def select_rotcircle(self, x: int, y: int, gs: GameState):
         gs.widgets.confirm_rot.reveal()
@@ -538,7 +567,9 @@ class NavLast(Button):
 
 
 class ExportSave(Button):
-    def __init__(self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font) -> None:
+    def __init__(
+        self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font
+    ) -> None:
         super().__init__(surface, x, y)
         self.hover_text = font.render(
             "export save",
@@ -582,11 +613,15 @@ class ExportSave(Button):
     def draw(self, screen: pygame.Surface, gs: GameState):
         super().draw(screen, gs)
         if self.hover_text_visible:
-            screen.blit(self.hover_text, (self.hover_x - self.hover_rect.width, self.hover_y))
+            screen.blit(
+                self.hover_text, (self.hover_x - self.hover_rect.width, self.hover_y)
+            )
 
 
 class ImportSave(Button):
-    def __init__(self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font) -> None:
+    def __init__(
+        self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font
+    ) -> None:
         super().__init__(surface, x, y)
         self.hover_text = font.render(
             "import save",
@@ -622,7 +657,9 @@ class ImportSave(Button):
     def draw(self, screen: pygame.Surface, gs: GameState):
         super().draw(screen, gs)
         if self.hover_text_visible:
-            screen.blit(self.hover_text, (self.hover_x - self.hover_rect.width, self.hover_y))
+            screen.blit(
+                self.hover_text, (self.hover_x - self.hover_rect.width, self.hover_y)
+            )
 
 
 if __name__ == "__main__":

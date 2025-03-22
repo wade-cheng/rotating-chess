@@ -32,9 +32,13 @@ class DistsAngle:
 
     def get_offsets(self, angle: float) -> Iterable[tuple[float, float]]:
         """angle in radians is the offset angle"""
-        return (self.get_point(d, self.__angle, angle) for d in copy.copy(self.__distances))
+        return (
+            self.get_point(d, self.__angle, angle) for d in copy.copy(self.__distances)
+        )
 
-    def get_point(self, distance: float, base_angle: float, offset_angle: float) -> tuple[float, float]:
+    def get_point(
+        self, distance: float, base_angle: float, offset_angle: float
+    ) -> tuple[float, float]:
         """angle in radians"""
         angle = base_angle - offset_angle
         return (distance * math.cos(angle), distance * math.sin(angle))
@@ -50,6 +54,7 @@ class Piece:
         img: pygame.Surface | None,
         piece_name: str,
     ):
+        # TODO: maybe add a self.headless: bool to check if we're in testing to avoid weird inscrutable Nones?
         # coordinates represent the CENTER of the piece.
         self.__x = x
         self.__y = y
@@ -59,7 +64,9 @@ class Piece:
         self.__side = side
         self.selected = False
         self.__default_image = img
-        self.__actual_image = None if img is None else pygame.transform.rotate(img, math.degrees(angle))
+        self.__actual_image = (
+            None if img is None else pygame.transform.rotate(img, math.degrees(angle))
+        )
         self.__preview_image: pygame.Surface | None = None
         self.__piece_name: str = piece_name
 
@@ -93,15 +100,20 @@ class Piece:
 
     def __set_nonpreview_blit_rect(self):
         """creates coords (from a rect) that is used to blit the current image whenever we are not in rotation preview mode"""
-        self.__nonpreview_blit_coords = (
-            None if self.__actual_image is None else self.__actual_image.get_rect(center=(self.__x, self.__y)).topleft
-        )
+        assert self.__actual_image is not None
+        self.__nonpreview_blit_coords = self.__actual_image.get_rect(
+            center=(self.__x, self.__y)
+        ).topleft
 
     def coord_collides(self, x: float, y: float) -> bool:
-        return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < settings.HITCIRCLE_RADIUS**2
+        return (
+            (x - self.__x) ** 2 + (y - self.__y) ** 2
+        ) < settings.HITCIRCLE_RADIUS**2
 
     def piece_collides(self, x: float, y: float) -> bool:
-        return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < (settings.HITCIRCLE_RADIUS * 2) ** 2
+        return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < (
+            settings.HITCIRCLE_RADIUS * 2
+        ) ** 2
 
     def get_x(self) -> float:
         return self.__x
@@ -130,13 +142,16 @@ class Piece:
     def move(self, x: float, y: float):
         debug = os.environ.get("DEBUG_ROTCHESS", "False")
         if debug is not None and debug == "True":
-            print(f"moving {self.__piece_name} xy {self.__x}, {self.__y} to xy {x}, {y}")
+            print(
+                f"moving {self.__piece_name} xy {self.__x}, {self.__y} to xy {x}, {y}"
+            )
 
         self.__x = x
         self.__y = y
-        self.update_capture_points()
-        self.update_move_points()
-        self.__set_nonpreview_blit_rect()
+        if self.__actual_image is not None:
+            self.update_capture_points()
+            self.update_move_points()
+            self.__set_nonpreview_blit_rect()
 
     def get_movable_points(self) -> list[tuple[float, float]]:
         return self.__capture_points + self.__move_points
@@ -215,11 +230,20 @@ class Piece:
                 settings.HITCIRCLE_RADIUS,
             )
 
-        if self.__preview_angle is None and self.__preview_image is None:
+        if None not in (
+            self.__preview_angle,
+            self.__preview_image,
+            self.__actual_image,
+            self.__nonpreview_blit_coords,
+        ):
+            assert self.__actual_image is not None
             screen.blit(self.__actual_image, self.__nonpreview_blit_coords)
         else:
             assert self.__preview_image is not None
-            pos_rect = self.__preview_image.get_rect(center=self.__actual_image.get_rect(center=(self.__x, self.__y)).center)
+            assert self.__actual_image is not None
+            pos_rect = self.__preview_image.get_rect(
+                center=self.__actual_image.get_rect(center=(self.__x, self.__y)).center
+            )
             screen.blit(self.__preview_image, pos_rect)
 
     def draw_hitcircle(self, screen: pygame.Surface):
@@ -265,31 +289,53 @@ class Piece:
         for da in chain(self.__capture_DAs, self.__move_DAs):
             # v_angle should be the angle the d.a. is pointing in.
             v_angle = v_hat.rotate_rad(
-                (2 * math.pi) - (self.__angle if self.__preview_angle is None else self.__preview_angle) * 1
+                (2 * math.pi)
+                - (
+                    self.__angle
+                    if self.__preview_angle is None
+                    else self.__preview_angle
+                )
+                * 1
             ).rotate_rad(da.get_angle())
             v_offset = v_angle.rotate(90)
             center = pygame.math.Vector2(self.__x, self.__y)
             point: pygame.math.Vector2
-            for x, y in da.get_offsets(self.__angle if self.__preview_angle is None else self.__preview_angle):
-                point = pygame.math.Vector2(x, y) + center  # point is a point the piece can move to
+            for x, y in da.get_offsets(
+                self.__angle if self.__preview_angle is None else self.__preview_angle
+            ):
+                point = (
+                    pygame.math.Vector2(x, y) + center
+                )  # point is a point the piece can move to
                 # center = point
                 if abs(x) > 1000 or abs(y) > 1000:
                     break
             # draw from center to the furthest points
-            pygame.draw.line(screen, (255, 255, 255), center + v_offset, point + v_offset)
-            pygame.draw.line(screen, (255, 255, 255), center - v_offset, point - v_offset)
+            pygame.draw.line(
+                screen, (255, 255, 255), center + v_offset, point + v_offset
+            )
+            pygame.draw.line(
+                screen, (255, 255, 255), center - v_offset, point - v_offset
+            )
 
     def should_draw_point(self, x: float, y: float) -> bool:
         BOARD_SIZE = 50 * 8
         MARGIN = settings.HITCIRCLE_RADIUS
-        if x < 0 - MARGIN or x > BOARD_SIZE + MARGIN or y < 0 - MARGIN or y > BOARD_SIZE + MARGIN:
+        if (
+            x < 0 - MARGIN
+            or x > BOARD_SIZE + MARGIN
+            or y < 0 - MARGIN
+            or y > BOARD_SIZE + MARGIN
+        ):
             return False
         return True
 
     def set_preview_angle(self, angle: float):
         """angle as radians"""
+        assert self.__default_image is not None
         self.__preview_angle = angle
-        self.__preview_image = pygame.transform.rotate(self.__default_image, math.degrees(angle))
+        self.__preview_image = pygame.transform.rotate(
+            self.__default_image, math.degrees(angle)
+        )
         if self.__preview_move_points is None and self.__preview_capture_points is None:
             self.__preview_move_points = []
             self.__preview_capture_points = []
@@ -297,7 +343,9 @@ class Piece:
     def confirm_preview(self):
         assert self.__preview_angle is not None and self.__preview_image is not None
 
-        print(f"rotating {self.get_x()},{self.get_y()}{self.__piece_name} {self.__angle}rad to {self.__preview_angle}rad")
+        print(
+            f"rotating {self.get_x()},{self.get_y()}{self.__piece_name} {self.__angle}rad to {self.__preview_angle}rad"
+        )
 
         self.__actual_image = self.__preview_image
         self.__preview_image = None
@@ -395,7 +443,9 @@ class Piece:
                 )
             self.__move_DAs = self.__capture_DAs
         else:
-            raise Exception(f"no distances angle mapping found for piece name: {self.__piece_name}")
+            raise Exception(
+                f"no distances angle mapping found for piece name: {self.__piece_name}"
+            )
 
     def include_diagonal_DAs(self):
         """appends the base moveset for a bishop to self's DistsAngles"""
@@ -427,10 +477,18 @@ class Piece:
 
     def include_level_DAs(self):
         """appends the base moveset for a rook to self's DistsAngles"""
-        self.__capture_DAs.append(DistsAngle(itertools.count(start=50, step=50), angle=0))
-        self.__capture_DAs.append(DistsAngle(itertools.count(start=-50, step=-50), angle=0))
-        self.__capture_DAs.append(DistsAngle(itertools.count(start=50, step=50), angle=math.pi / 2))
-        self.__capture_DAs.append(DistsAngle(itertools.count(start=-50, step=-50), angle=math.pi / 2))
+        self.__capture_DAs.append(
+            DistsAngle(itertools.count(start=50, step=50), angle=0)
+        )
+        self.__capture_DAs.append(
+            DistsAngle(itertools.count(start=-50, step=-50), angle=0)
+        )
+        self.__capture_DAs.append(
+            DistsAngle(itertools.count(start=50, step=50), angle=math.pi / 2)
+        )
+        self.__capture_DAs.append(
+            DistsAngle(itertools.count(start=-50, step=-50), angle=math.pi / 2)
+        )
         self.__move_DAs = self.__capture_DAs
 
 
