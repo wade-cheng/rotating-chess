@@ -230,12 +230,7 @@ class Piece:
                 settings.HITCIRCLE_RADIUS,
             )
 
-        if None not in (
-            self.__preview_angle,
-            self.__preview_image,
-            self.__actual_image,
-            self.__nonpreview_blit_coords,
-        ):
+        if self.__preview_angle is None and self.__preview_image is None:
             assert self.__actual_image is not None
             screen.blit(self.__actual_image, self.__nonpreview_blit_coords)
         else:
