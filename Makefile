@@ -5,5 +5,5 @@ test:
 	
 pygbag:
 	rm docs -r 
-	pygbag --build --template pygbag.tmpl .
+	uvx pygbag@0.8.6 --build --template pygbag.tmpl .
 	cp -r build/web docs 
