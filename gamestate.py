@@ -7,7 +7,6 @@ import copy
 from enum import Enum
 from compressjson import json_compress, json_decompress
 
-
 class Screen(Enum):
     MAIN_MENU = 1
     SETTINGS = 2

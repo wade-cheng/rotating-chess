@@ -1,3 +1,4 @@
+import os
 import math
 import settings
 import pygame
@@ -46,7 +47,7 @@ class Piece:
         y: float,
         angle: float,
         side: Side,
-        img: pygame.Surface,
+        img: pygame.Surface | None,
         piece_name: str,
     ):
         # coordinates represent the CENTER of the piece.
@@ -58,12 +59,13 @@ class Piece:
         self.__side = side
         self.selected = False
         self.__default_image = img
-        self.__actual_image = pygame.transform.rotate(self.__default_image, math.degrees(angle))
+        self.__actual_image = None if img is None else pygame.transform.rotate(img, math.degrees(angle))
         self.__preview_image: pygame.Surface | None = None
         self.__piece_name: str = piece_name
 
         self.__nonpreview_blit_coords: tuple[int, int]
-        self.__set_nonpreview_blit_rect()
+        if img is not None:
+            self.__set_nonpreview_blit_rect()
 
         # the DAs calculate relative angle; they get self.__angle passed in.
         # the points are only used when only one piece is selected.
@@ -77,6 +79,9 @@ class Piece:
         self.__preview_move_points: list[tuple[float, float]] | None = None
         self.__init()
 
+    def __str__(self):
+        return f"Piece(x={self.__x}, y={self.__y}, side={self.__side})"
+
     def to_JSON_dict(self):
         return {
             "x": self.__x,
@@ -88,7 +93,7 @@ class Piece:
 
     def __set_nonpreview_blit_rect(self):
         """creates coords (from a rect) that is used to blit the current image whenever we are not in rotation preview mode"""
-        self.__nonpreview_blit_coords = self.__actual_image.get_rect(center=(self.__x, self.__y)).topleft
+        self.__nonpreview_blit_coords = None if self.__actual_image is None else self.__actual_image.get_rect(center=(self.__x, self.__y)).topleft
 
     def coord_collides(self, x: float, y: float) -> bool:
         return ((x - self.__x) ** 2 + (y - self.__y) ** 2) < settings.HITCIRCLE_RADIUS**2
@@ -121,7 +126,9 @@ class Piece:
         return False
 
     def move(self, x: float, y: float):
-        print(f"moving {self.__piece_name} x{self.__x} y{self.__y} to x{x} y{y}")
+        debug = os.environ.get("DEBUG_ROTCHESS", "False")
+        if debug is not None and debug == "True":
+            print(f"moving {self.__piece_name} xy {self.__x}, {self.__y} to xy {x}, {y}")
 
         self.__x = x
         self.__y = y

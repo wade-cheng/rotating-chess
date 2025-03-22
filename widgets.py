@@ -9,6 +9,7 @@ from pieces import Piece, Side
 import sys, platform
 from pathlib import Path
 from datetime import datetime
+import os
 
 # gamestate is a circular import
 # this block and __future__'s annotations fixes type checking
@@ -83,9 +84,9 @@ def scalar_comp(
 
 
 class Pieces(Widget):
-    def __init__(self) -> None:
+    def __init__(self, pieces: list[Piece]=[]) -> None:
         self.skin = settings.SKIN
-        self.pieces: list[Piece] = []
+        self.pieces: list[Piece] = pieces
         # invariant: forall Piece in selected_pieces, Piece.selected
         # invariant: forall Piece not in selected_pieces, not Piece.selected
         # checked every time we MOUSEBUTTONDOWN
@@ -106,7 +107,7 @@ class Pieces(Widget):
                         self.move(only_selected, point_x, point_y, gs)
                         # note: self.move() already removes the piece from selected, but we still have the pointer.
                         if only_selected.should_promote():
-                            self.promote(only_selected)
+                            self.promote(only_selected, gs.assets, gs.piece_skin)
 
                         moved_piece = True
                         break
@@ -212,7 +213,9 @@ class Pieces(Widget):
         #     and if piece is less than 2*hitcirclerad away from line:
         #         in_the_way.append(piece)
 
-        print(f"inway: {in_the_way}, overlaps: {pieces_overlapping_endpoint}")
+        debug = os.environ.get("DEBUG_ROTCHESS", "False")
+        if debug is not None and debug == "True":
+            print(f"inway: {in_the_way}, overlaps: {pieces_overlapping_endpoint}")
         if in_the_way > pieces_overlapping_endpoint:
             return False
         # if len(in_the_way) > len(pieces overlapping endpoint):
@@ -257,30 +260,36 @@ class Pieces(Widget):
         self.pieces.append(Piece(x, y, rad, side, assets[f"piece_queen{side_str}{piece_skin.value}"], "queen"))  # fmt: skip
 
     # fmt: off
-    def load_normal_board(self, assets: dict[str, pygame.Surface], piece_skin: settings.PieceSkin):
+    def load_normal_board(self, assets: dict[str, pygame.Surface] | None, piece_skin: settings.PieceSkin | None) -> None:
+        """
+        in place. use with None params in testing when we don't care about visual
+        """
         self.pieces.clear()
         for x_pos in range(25, 50*8, 50):
-            self.pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
-            self.pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75, math.radians(180), Side.BLACK, None if assets is None else assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75 + 250, 0, Side.WHITE, None if assets is None else assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
 
         order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
         for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
-            self.pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
-            self.pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25, math.radians(180), Side.BLACK, None if assets is None else assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25 + 350, 0, Side.WHITE, None if assets is None else assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
     # fmt: on
 
     # fmt: off
-    def load_chess_960(self, assets: dict[str, pygame.Surface], piece_skin: settings.PieceSkin):
+    def load_chess_960(self, assets: dict[str, pygame.Surface] | None, piece_skin: settings.PieceSkin | None) -> None:
+        """
+        in place. use with None params in testing when we don't care about visual
+        """
         self.pieces.clear()
         for x_pos in range(25, 50*8, 50):
-            self.pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
-            self.pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75, math.radians(random.randint(-180, 180)), Side.BLACK, None if assets is None else assets[f"piece_pawnB{piece_skin.value}"], "pawn"))
+            self.pieces.append(Piece(x_pos, 75 + 250, math.radians(random.randint(-180, 180)), Side.WHITE, None if assets is None else assets[f"piece_pawnW{piece_skin.value}"], "pawn"))
 
         order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
         random.shuffle(order)
         for orderidx, x_pos in enumerate(range(25, 50*8, 50)):
-            self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
-            self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25, math.radians(random.randint(-180, 180)), Side.BLACK, None if assets is None else assets[f"piece_{order[orderidx]}B{piece_skin.value}"], order[orderidx]))
+            self.pieces.append(Piece(x_pos, 25 + 350, math.radians(random.randint(-180, 180)), Side.WHITE, None if assets is None else assets[f"piece_{order[orderidx]}W{piece_skin.value}"], order[orderidx]))
     # fmt: on
 
 
@@ -551,7 +560,6 @@ class ExportSave(Button):
         with open(savepath, "w") as f:
             f.write(s)
         if sys.platform == "emscripten":
-            print("got here")
             platform.window.MM.download(savepath)
         else:
             with open(savepath, "w") as f:
@@ -563,8 +571,6 @@ class ExportSave(Button):
                 return
 
             save = gs.nav.get_game_save()
-            print("save:")
-            print(save)
             self.download_save(save)
         elif e.type == pygame.MOUSEMOTION:
             if self.check_hovered(x, y):

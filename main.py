@@ -8,12 +8,14 @@ from gamestate import GameState
 import widgets
 from widgets import MOUSE_HELD
 from debug import *
+import os
 
 import sys, platform
 
 if sys.platform == "emscripten":
     platform.window.canvas.style.imageRendering = "pixelated"
 
+os.environ["DEBUG_ROTCHESS"] = "True"
 
 def update(gs: GameState):
     widgets.Button.one_clicked = False
