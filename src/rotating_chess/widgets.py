@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 # from gamestate import GameState
 
 if TYPE_CHECKING:
-    from gamestate import GameState
+    from rotating_chess.gamestate import GameState
 
 MOUSE_HELD = pygame.USEREVENT + 1
 
