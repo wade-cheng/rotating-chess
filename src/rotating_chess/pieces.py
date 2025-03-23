@@ -1,6 +1,5 @@
 import os
 import math
-import settings
 import pygame
 from pygame.locals import *
 import itertools
@@ -9,6 +8,7 @@ from enum import Enum
 from itertools import chain
 from collections.abc import Iterable
 
+from rotating_chess import settings as settings
 from rotating_chess.debug import *
 
 
