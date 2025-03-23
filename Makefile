@@ -5,5 +5,5 @@ test:
 	
 pygbag:
 	rm docs -r 
-	uvx pygbag@latest --build --template pygbag.tmpl src/rotating_chess
-	cp -r build/web docs 
+	uv run pygbag --build --template pygbag.tmpl src/rotating_chess
+	mv src/rotating_chess/build/web docs 
