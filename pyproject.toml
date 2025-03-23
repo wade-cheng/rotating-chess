@@ -13,3 +13,7 @@ dependencies = [
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
