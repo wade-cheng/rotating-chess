@@ -1,11 +1,11 @@
-from pygame import Surface
-from pieces import *
-from widgets import *
 import os
-import settings
 import copy
 from enum import Enum
-from compressjson import json_compress, json_decompress
+
+from rotating_chess.pieces import *
+from rotating_chess.widgets import *
+from rotating_chess import settings as settings
+from rotating_chess.compressjson import json_compress, json_decompress
 
 
 class Screen(Enum):
@@ -70,7 +70,9 @@ class GameState:
             if not file.endswith(".png") and not file.endswith(".svg"):
                 print(f"not loading {file} with load_img_assets()")
                 continue
-            self.assets[file.removesuffix(".png").removesuffix(".svg")] = pygame.image.load(f"assets/{file}")
+            self.assets[file.removesuffix(".png").removesuffix(".svg")] = (
+                pygame.image.load(f"assets/{file}")
+            )
         print(f"loaded assets:\n{self.assets.keys()}")
 
 
@@ -88,7 +90,9 @@ class TurnNavigation:
         return json_compress(
             {
                 "save_version": "1.0.0",
-                "save": [[piece.to_JSON_dict() for piece in turn] for turn in self.__turns],
+                "save": [
+                    [piece.to_JSON_dict() for piece in turn] for turn in self.__turns
+                ],
             }
         )
 
@@ -112,7 +116,9 @@ class TurnNavigation:
                             piece_dict["y"],
                             piece_dict["angle"],
                             side,
-                            gs.assets[f"piece_{piece_dict['piece_name']}{'B' if side == Side.BLACK else 'W'}{gs.piece_skin.value}"],
+                            gs.assets[
+                                f"piece_{piece_dict['piece_name']}{'B' if side == Side.BLACK else 'W'}{gs.piece_skin.value}"
+                            ],
                             piece_dict["piece_name"],
                         )
                     )

@@ -3,12 +3,13 @@ import math
 import settings
 import pygame
 from pygame.locals import *
-from debug import *
 import itertools
 import copy
 from enum import Enum
 from itertools import chain
 from collections.abc import Iterable
+
+from rotating_chess.debug import *
 
 
 class Side(Enum):

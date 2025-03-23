@@ -5,3 +5,4 @@ game_saves
 .mypy_cache
 .venv
 .pytest_cache
+src/rotating_chess/rotating_chess.egg-info

@@ -4,12 +4,13 @@ import pygame
 from pygame.locals import *
 import math
 import random
-import settings
-from pieces import Piece, Side
 import sys, platform
 from pathlib import Path
 from datetime import datetime
 import os
+
+from rotating_chess import settings as settings
+from rotating_chess.pieces import Piece, Side
 
 # gamestate is a circular import
 # this block and __future__'s annotations fixes type checking

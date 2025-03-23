@@ -1,7 +1,7 @@
 all: test pygbag
 
 test:
-	uv run pytest -v --doctest-modules compressjson.py test_all.py
+	uv run pytest -v --doctest-modules src/rotating_chess/compressjson.py tests
 	
 pygbag:
 	rm docs -r 

@@ -1,8 +1,8 @@
 import pytest
-import compressjson as cj
-import widgets
+import rotating_chess.compressjson as cj
+import rotating_chess.widgets as widgets
 from math import isclose
-from pieces import Piece
+from rotating_chess.pieces import Piece
 
 
 class TestSaveFiles:

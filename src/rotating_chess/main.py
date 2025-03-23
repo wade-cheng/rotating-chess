@@ -1,16 +1,15 @@
+import os
+import sys, platform
 import asyncio
-import random
-import settings
 import pygame
+
 from pygame.event import Event
 from pygame.locals import *
-from gamestate import GameState
-import widgets
-from widgets import MOUSE_HELD
-from debug import *
-import os
-
-import sys, platform
+from rotating_chess import widgets as widgets
+from rotating_chess.gamestate import GameState
+from rotating_chess.widgets import MOUSE_HELD
+from rotating_chess.debug import *
+from rotating_chess import settings
 
 if sys.platform == "emscripten":
     platform.window.canvas.style.imageRendering = "pixelated"
