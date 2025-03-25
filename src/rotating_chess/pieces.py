@@ -150,6 +150,9 @@ class Piece:
     def get_side(self) -> Side:
         return self.__side
 
+    def get_piece_name(self) -> str:
+        return self.__piece_name
+
     def should_promote(self) -> bool:
         # board height is 400px, tile height is 50
         if self.__piece_name != "pawn":

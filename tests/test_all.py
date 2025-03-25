@@ -1,8 +1,9 @@
 import pytest
+from math import isclose
+
 import rotating_chess.compressjson as cj
 import rotating_chess.widgets as widgets
-from math import isclose
-from rotating_chess.pieces import Piece
+from rotating_chess.pieces import Piece, Side
 
 
 class TestSaveFiles:
@@ -44,6 +45,22 @@ def standard_begin():
     pieces = widgets.Pieces()
     pieces.load_normal_board(None, None)
     return pieces
+
+
+@pytest.fixture
+def e4() -> Piece:
+    return Piece(225, 325, 0, Side.WHITE, None, "pawn")
+
+
+class TestPromotion:
+    def test_simple1(self, e4: Piece):
+        """e4 -> e8"""
+        ps = widgets.Pieces([e4])
+        ps.selected_pieces.append(e4)
+        e4.selected = True
+        ps.move(e4, 225, 25, None)
+        assert len(ps.pieces) == 1
+        assert ps.pieces[0].get_piece_name() == "queen"
 
 
 class TestPieceMovement:
