@@ -62,6 +62,24 @@ class TestPromotion:
         assert len(ps.pieces) == 1
         assert ps.pieces[0].get_piece_name() == "queen"
 
+    def test_simple2(self, e4: Piece):
+        """e4 -> g8"""
+        ps = widgets.Pieces([e4])
+        ps.selected_pieces.append(e4)
+        e4.selected = True
+        ps.move(e4, 325, 25, None)
+        assert len(ps.pieces) == 1
+        assert ps.pieces[0].get_piece_name() == "queen"
+
+    def test_simple3(self, e4: Piece):
+        """e4 -> partial"""
+        ps = widgets.Pieces([e4])
+        ps.selected_pieces.append(e4)
+        e4.selected = True
+        ps.move(e4, 225, 45, None)
+        assert len(ps.pieces) == 1
+        assert ps.pieces[0].get_piece_name() == "queen"
+
 
 class TestPieceMovement:
     def test_Nc3(self, standard_begin):

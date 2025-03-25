@@ -1,6 +1,7 @@
 all: test pygbag
 
 test:
+	# can use eg: uv run pytest -v -k TestPromotion
 	uv run pytest -v --doctest-modules src/rotating_chess/*.py tests
 	
 pygbag:
