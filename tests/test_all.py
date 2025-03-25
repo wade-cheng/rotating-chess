@@ -1,5 +1,4 @@
 import pytest
-from math import isclose
 
 import rotating_chess.compressjson as cj
 import rotating_chess.widgets as widgets
@@ -17,8 +16,9 @@ def find_piece(ps: widgets.Pieces, x: float, y: float) -> Piece:
     selected_ps = [
         p
         for p in ps.pieces
-        if isclose(p.get_x(), x, abs_tol=0.001) and isclose(p.get_y(), y, abs_tol=0.001)
+        if p.get_x() == pytest.approx(x) and p.get_y() == pytest.approx(y)
     ]
+
     assert len(selected_ps) == 1
     return selected_ps[0]
 
