@@ -96,9 +96,12 @@ class TurnNavigation:
             }
         )
 
-    def load_game_save(self, s: str, gs: GameState) -> bool:
+    def load_game_save(self, s: str, gs: GameState) -> list[list[Piece]] | None:
         """
-        tries to load a game save, returning whether this succeeded
+        tries to load a game save, returning Some reconstructed list of list of pieces,
+        or None if there was an error.
+
+        if let Some ps, then ps is not an alias to any other ps. i.e., mutate as much as you'd like.
         """
         try:
             s = s.strip()
@@ -125,9 +128,9 @@ class TurnNavigation:
             self.__turns = reconstructed_save
             self.__curr_turn = len(self) - 1
             self.update_state(gs)
-            return True
+            return copy.deepcopy(reconstructed_save)
         except:
-            return False
+            return None
 
     def record_turn(self, pieces: list[Piece]) -> None:
         self.__turns = self.__turns[0 : self.__curr_turn + 1]

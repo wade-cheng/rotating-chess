@@ -647,10 +647,10 @@ class ImportSave(Button):
 
             if sys.platform == "emscripten":
                 save = platform.window.prompt("paste game save")
-                if save is not None and not gs.nav.load_game_save(save, gs):
+                if save is not None and gs.nav.load_game_save(save, gs) is not None:
                     platform.window.alert("invalid save")
             else:
-                if not gs.nav.load_game_save(input("paste game save > "), gs):
+                if gs.nav.load_game_save(input("paste game save > "), gs) is not None:
                     print("invalid save")
 
         elif e.type == pygame.MOUSEMOTION:
