@@ -140,6 +140,10 @@ class Piece:
         return False
 
     def move(self, x: float, y: float):
+        """
+        strictly just moves self to x,y and updates self invariants.
+        doesn't even check for promotion---should be done in Pieces.move().
+        """
         debug = os.environ.get("DEBUG_ROTCHESS", "False")
         if debug is not None and debug == "True":
             print(
@@ -148,6 +152,7 @@ class Piece:
 
         self.__x = x
         self.__y = y
+
         if self.__actual_image is not None:
             self.update_capture_points()
             self.update_move_points()

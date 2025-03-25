@@ -116,9 +116,6 @@ class Pieces(Widget):
                     ) and self.canmove(only_selected, point_x, point_y):
                         self.move(only_selected, point_x, point_y, gs)
                         # note: self.move() already removes the piece from selected, but we still have the pointer.
-                        if only_selected.should_promote():
-                            self.promote(only_selected, gs.assets, gs.piece_skin)
-
                         moved_piece = True
                         break
 
@@ -242,7 +239,7 @@ class Pieces(Widget):
         self, only_selected: Piece, point_x: float, point_y: float, gs: GameState | None
     ):
         """
-        moves only_selected to x,y, capturing any overlapping pieces.
+        moves only_selected to x,y, capturing any overlapping pieces and managing promotion.
         use with gs=None in testing when we create a board without visualization.
         """
         assert len(self.selected_pieces) == 1
@@ -262,11 +259,19 @@ class Pieces(Widget):
         if gs is not None:
             gs.widgets.movesel.hide(gs)
 
+        # promote if necessary
+        if only_selected.should_promote():
+            self.promote(
+                only_selected,
+                None if gs is None else gs.assets,
+                None if gs is None else gs.piece_skin,
+            )
+
     def promote(
         self,
         piece: Piece,
-        assets: dict[str, pygame.Surface],
-        piece_skin: settings.PieceSkin,
+        assets: dict[str, pygame.Surface] | None,
+        piece_skin: settings.PieceSkin | None,
     ):
         x, y, rad, side = (
             piece.get_x(),
@@ -279,7 +284,7 @@ class Pieces(Widget):
             side_str = "B"
         elif side == Side.WHITE:
             side_str = "W"
-        self.pieces.append(Piece(x, y, rad, side, assets[f"piece_queen{side_str}{piece_skin.value}"], "queen"))  # fmt: skip
+        self.pieces.append(Piece(x, y, rad, side, None if assets is None or piece_skin is None else assets[f"piece_queen{side_str}{piece_skin.value}"], "queen"))  # fmt: skip
 
     # fmt: off
     def load_normal_board(self, assets: dict[str, pygame.Surface] | None, piece_skin: settings.PieceSkin | None) -> None:
