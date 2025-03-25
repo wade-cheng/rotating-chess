@@ -75,7 +75,7 @@ class Piece:
         angle: float,
         side: Side,
         img: pygame.Surface | None,
-        piece_name: str,
+        piece_name: str,  # TODO MAKE THIS A ENUM?
     ):
         # TODO: maybe add a self.headless: bool to check if we're in testing to avoid weird inscrutable Nones?
         # coordinates represent the CENTER of the piece.
