@@ -13,6 +13,9 @@ dependencies = [
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+doctest_optionflags = "NUMBER ELLIPSIS"
+    # NUMBER: round floats
+    # ELLIPSIS: allow ... to shorten outputs in non-exception output
 
 [build-system]
 requires = ["hatchling"]

@@ -1,7 +1,7 @@
 all: test pygbag
 
 test:
-	uv run pytest -v --doctest-modules src/rotating_chess/compressjson.py tests
+	uv run pytest -v --doctest-modules src/rotating_chess/*.py tests
 	
 pygbag:
 	echo "BROKEN :("
