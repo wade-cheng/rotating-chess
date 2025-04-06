@@ -6,10 +6,10 @@ import pygame
 from pygame.event import Event
 from pygame.locals import QUIT
 
-# from rotating_chess import widgets
-# from rotating_chess.gamestate import GameState
-# from rotating_chess.widgets import MOUSE_HELD
-# from rotating_chess import settings
+from rotating_chess import widgets
+from rotating_chess.gamestate import GameState
+from rotating_chess.widgets import MOUSE_HELD
+from rotating_chess import settings
 
 if sys.platform == "emscripten":
     platform.window.canvas.style.imageRendering = "pixelated"
@@ -17,69 +17,65 @@ if sys.platform == "emscripten":
 os.environ["DEBUG_ROTCHESS"] = "True"
 
 
-# def update(gs: GameState):
-#     widgets.Button.one_clicked = False
-#     x, y = pygame.mouse.get_pos()
+def update(gs: GameState):
+    widgets.Button.one_clicked = False
+    x, y = pygame.mouse.get_pos()
 
-#     if pygame.mouse.get_pressed()[0]:
-#         pygame.event.post(Event(MOUSE_HELD))
+    if pygame.mouse.get_pressed()[0]:
+        pygame.event.post(Event(MOUSE_HELD))
 
-#     for event in pygame.event.get():
-#         for widget in gs.widgets.__dict__.values():
-#             widget.handle_event(event, gs, x, y)
+    for event in pygame.event.get():
+        for widget in gs.widgets.__dict__.values():
+            widget.handle_event(event, gs, x, y)
 
-#         if event.type == QUIT:
-#             gs.playing = False
+        if event.type == QUIT:
+            gs.playing = False
 
 
-# def draw(screen: pygame.Surface, gs: GameState):
-#     """
-#     Draw things to the window. Called once per frame.
-#     """
-#     # draw board tiles
-#     screen.fill(settings.BOARD_COLOR)
+def draw(screen: pygame.Surface, gs: GameState):
+    """
+    Draw things to the window. Called once per frame.
+    """
+    # draw board tiles
+    screen.fill(settings.BOARD_COLOR)
 
-#     for i in range(0, 400, 100):
-#         for j in range(0, 400, 100):
-#             pygame.draw.rect(screen, settings.BACKGROUND_COLOR, (i, j, 50, 50))
+    for i in range(0, 400, 100):
+        for j in range(0, 400, 100):
+            pygame.draw.rect(screen, settings.BACKGROUND_COLOR, (i, j, 50, 50))
 
-#     for i in range(50, 450, 100):
-#         for j in range(50, 450, 100):
-#             pygame.draw.rect(screen, settings.BACKGROUND_COLOR, (i, j, 50, 50))
+    for i in range(50, 450, 100):
+        for j in range(50, 450, 100):
+            pygame.draw.rect(screen, settings.BACKGROUND_COLOR, (i, j, 50, 50))
 
-#     # draw "cover" for pieces in case they leak over to the selection panel
-#     # TODO: this doesn't actually do anything anymore. need to get
-#     # LayeredUpdates working and make all these widgets.
-#     # ie only thing in this function should be screen.fill board color and draw all widgets
-#     pygame.draw.rect(screen, settings.BOARD_COLOR, (8 * 50, 0, 4 * 50, 8 * 50))
+    # draw "cover" for pieces in case they leak over to the selection panel
+    # TODO: this doesn't actually do anything anymore. need to get
+    # LayeredUpdates working and make all these widgets.
+    # ie only thing in this function should be screen.fill board color and draw all widgets
+    pygame.draw.rect(screen, settings.BOARD_COLOR, (8 * 50, 0, 4 * 50, 8 * 50))
 
-#     # draw widgets
-#     for widget in gs.widgets.__dict__.values():
-#         widget.draw(screen, gs)
+    # draw widgets
+    for widget in gs.widgets.__dict__.values():
+        widget.draw(screen, gs)
 
-#     pygame.display.update()
+    pygame.display.update()
 
 
 async def main():
     pygame.init()
 
-    screen = pygame.display.set_mode((600, 400))
-    # screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
-    # screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
+    if sys.platform == "emscripten":
+        screen = pygame.display.set_mode((600, 400))
+    else:
+        # screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
+        screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
 
-    # gs: GameState = GameState()
+    gs: GameState = GameState()
     clock = pygame.time.Clock()
-    x = 1
-    # while gs.playing:
-    while True:
-        # update(gs)
-        # draw(screen, gs)
+    while gs.playing:
+        update(gs)
+        draw(screen, gs)
 
-        screen.fill((0, 0, 0))
-        pygame.draw.circle(screen, (255, 255, 255), (x, 10), radius=3)
-        pygame.display.update()
         clock.tick(60)
-        x += 1
         await asyncio.sleep(0)  # Let other tasks run
 
 
