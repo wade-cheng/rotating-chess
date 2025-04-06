@@ -5,7 +5,7 @@ import pygame
 
 from pygame.event import Event
 from pygame.locals import *
-from rotating_chess import widgets as widgets
+from rotating_chess import widgets
 from rotating_chess.gamestate import GameState
 from rotating_chess.widgets import MOUSE_HELD
 from rotating_chess import settings

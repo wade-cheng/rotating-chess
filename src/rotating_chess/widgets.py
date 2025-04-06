@@ -9,7 +9,7 @@ from pathlib import Path
 from datetime import datetime
 import os
 
-from rotating_chess import settings as settings
+from rotating_chess import settings
 from rotating_chess.pieces import Piece, Side
 
 # gamestate is a circular import

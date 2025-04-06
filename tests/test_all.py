@@ -1,7 +1,7 @@
 import pytest
 
 import rotating_chess.compressjson as cj
-import rotating_chess.widgets as widgets
+from rotating_chess import widgets
 from rotating_chess.pieces import Piece, Side
 
 

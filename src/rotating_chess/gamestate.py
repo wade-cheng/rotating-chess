@@ -4,7 +4,7 @@ from enum import Enum
 
 from rotating_chess.pieces import *
 from rotating_chess.widgets import *
-from rotating_chess import settings as settings
+from rotating_chess import settings
 from rotating_chess.compressjson import json_compress, json_decompress
 
 
