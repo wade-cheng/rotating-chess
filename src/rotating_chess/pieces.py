@@ -1,7 +1,6 @@
 import os
 import math
 import pygame
-from pygame.locals import *
 import itertools
 import copy
 from enum import Enum

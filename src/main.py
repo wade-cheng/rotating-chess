@@ -4,7 +4,8 @@ import asyncio
 import pygame
 
 from pygame.event import Event
-from pygame.locals import *
+from pygame.locals import QUIT
+
 from rotating_chess import widgets
 from rotating_chess.gamestate import GameState
 from rotating_chess.widgets import MOUSE_HELD
