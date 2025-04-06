@@ -1,5 +1,7 @@
 import pytest
 
+from pygame.math import Vector2
+
 import rotating_chess.compressjson as cj
 from rotating_chess import widgets
 from rotating_chess.pieces import Piece, Side
@@ -128,6 +130,32 @@ class TestPieceMovement:
         )  # can capture all three
 
         board.move(find_piece(board, *at("b6")), *at("a8/b8"), None)  # do so
+
+        # only the queen should remain
+        assert len(board.pieces) == 1
+        assert board.pieces[0].get_piece_name() == "queen"
+
+    def test_quadcapture(self):
+        board = widgets.Pieces(
+            [
+                Piece(*at("a7") - Vector2(0, 10), 0, Side.BLACK, None, "pawn"),
+                Piece(*at("b7") - Vector2(10, 10), 0, Side.BLACK, None, "pawn"),
+                Piece(*at("a8") - Vector2(0, 0), 0, Side.BLACK, None, "rook"),
+                Piece(*at("b8") - Vector2(10, 0), 0, Side.BLACK, None, "knight"),
+                Piece(*at("a1/b2") - Vector2(5, 5), 0, Side.WHITE, None, "queen"),
+            ]
+        )
+        assert can_move(
+            board,
+            at("a1/b2") - Vector2(5, 5),
+            at("a7/b8") - Vector2(5, 5),
+        )  # can capture all four
+
+        board.move(
+            find_piece(board, *at("a1/b2") - Vector2(5, 5)),
+            *at("a7/b8") - Vector2(5, 5),
+            None,
+        )  # do so
 
         # only the queen should remain
         assert len(board.pieces) == 1
