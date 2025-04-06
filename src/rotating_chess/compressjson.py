@@ -13,7 +13,9 @@ def json_compress(j):
     ...
     TypeError: Object of type set is not JSON serializable
     """
-    return base64.b64encode(zlib.compress(json.dumps(j).encode("utf-8"))).decode("utf-8")
+    return base64.b64encode(zlib.compress(json.dumps(j).encode("utf-8"))).decode(
+        "utf-8"
+    )
 
 
 def json_decompress(s: str):
