@@ -171,15 +171,15 @@ class Pieces(Widget):
         """checks if we can move the only selected piece to point_x, point_y"""
         assert len(self.selected_pieces) == 1
 
-        pieces_overlapping_endpoint = 0
+        pieces_overlapping_endpoint = set()
 
-        # disallow capturing own side. also update how many pieces overlap the endpoint
+        # disallow capturing own side. also find which pieces overlap the endpoint
         for piece in self.pieces:
             if piece == only_selected:
                 continue
 
             if piece.piece_collides(point_x, point_y):
-                pieces_overlapping_endpoint += 1
+                pieces_overlapping_endpoint.add(piece)
 
                 if piece.get_side() == only_selected.get_side():
                     return False
@@ -219,15 +219,16 @@ class Pieces(Widget):
                     < 2 * settings.HITCIRCLE_RADIUS
                 ):
                     # piece is within correct point to line distance to block. we may be blocked unless we can capture this piece.
-                    in_the_way += 1
+                    if piece not in pieces_overlapping_endpoint:
+                        in_the_way += 1
         #     if piece in the scalar projection direction is >= 0 but < the max hit distance
         #     and if piece is less than 2*hitcirclerad away from line:
         #         in_the_way.append(piece)
 
         debug = os.environ.get("DEBUG_ROTCHESS", "False")
         if debug is not None and debug == "True":
-            print(f"inway: {in_the_way}, overlaps: {pieces_overlapping_endpoint}")
-        if in_the_way > pieces_overlapping_endpoint:
+            print(f"inway: {in_the_way}, overlaps: {len(pieces_overlapping_endpoint)}")
+        if in_the_way > 0:
             return False
         # if len(in_the_way) > len(pieces overlapping endpoint):
         #     return False
