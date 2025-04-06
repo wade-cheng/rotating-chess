@@ -117,7 +117,6 @@ class TestPieceMovement:
             (325.0, 225.0),
         )  # test cannot phase
 
-    @pytest.mark.xfail
     def test_phase2(self, standard_begin):
         """
         infinitely jumping pieces should be not able to hop/phase through pieces to their destination.
