@@ -132,7 +132,7 @@ class TestPieceMovement:
 
         # only the queen should remain
         assert len(board.pieces) == 1
-        assert board.pieces[1].get_piece_name() == "queen"
+        assert board.pieces[0].get_piece_name() == "queen"
 
     def test_phase(self, standard_begin):
         """
