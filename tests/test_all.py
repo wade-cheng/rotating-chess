@@ -102,6 +102,39 @@ class TestPieceMovement:
             (133.42074531670488, 287.1968043376545),
         )
 
+    def test_doublecapture(self, standard_begin):
+        find_piece(standard_begin, 225, 325).move(225.0, 125.0)  # e->e6
+        find_piece(standard_begin, 175, 325).move(175.0, 225.0)  # d4
+        assert can_move(
+            standard_begin,
+            (175, 375),
+            (353.29714819722693, 69.69666404584422),
+        )  # Qx(g7,h7)
+
+    @pytest.mark.xfail(reason="known bug")
+    def test_triplecapture(self):
+        board = widgets.Pieces(
+            [
+                Piece(50, 50, 0, Side.BLACK, None, "pawn"),  # a7/b8
+                Piece(25, 25, 0, Side.BLACK, None, "rook"),  # a8
+                Piece(75, 25, 0, Side.BLACK, None, "knight"),  # b8
+                Piece(75, 125, 0.25, Side.WHITE, None, "queen"),  # b6
+            ]
+        )
+        assert can_move(
+            board,
+            (75, 125),
+            (49.598762448614224, 28.279903169723468),
+        )  # can capture all three
+
+        board.move(
+            find_piece(board, 75, 125), 49.598762448614224, 28.279903169723468, None
+        )  # do so
+
+        # only the queen should remain
+        assert len(board.pieces) == 1
+        assert board.pieces[1].get_piece_name() == "queen"
+
     def test_phase(self, standard_begin):
         """
         infinitely jumping pieces should be not able to hop/phase through pieces to their destination.
