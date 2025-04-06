@@ -2,10 +2,13 @@ import os
 import copy
 from enum import Enum
 
+from pygame.math import Vector2
+
 from rotating_chess.pieces import *
 from rotating_chess.widgets import *
 from rotating_chess import settings
 from rotating_chess.compressjson import json_compress, json_decompress
+from rotating_chess.locations import at
 
 
 class Screen(Enum):
@@ -51,10 +54,19 @@ class GameState:
                 wself.imp_save = ImportSave(self.assets["upload"], 540, 10, self.font)
             __dict__: dict[str, Widget]
         self.widgets = Widgets()
-        # fmt: on
 
         # self.widgets.pieces.load_chess_960(self.assets, self.piece_skin)
         self.widgets.pieces.load_normal_board(self.assets, self.piece_skin)
+
+        # for testing: (remember to comment out load_normal above)
+        # self.widgets.pieces = Pieces([
+        #     Piece(*at("a7")-Vector2(0,10), math.radians(180), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin.value}"], "pawn"),
+        #     Piece(*at("b7")-Vector2(10,10), math.radians(180), Side.BLACK, self.assets[f"piece_pawnB{self.piece_skin.value}"], "pawn"),
+        #     Piece(*at("a8")-Vector2(0,0), math.radians(180), Side.BLACK, self.assets[f"piece_rookB{self.piece_skin.value}"], "rook"),
+        #     Piece(*at("b8")-Vector2(10,0), math.radians(180), Side.BLACK, self.assets[f"piece_knightB{self.piece_skin.value}"], "knight"),
+        #     Piece(*at("a1/b2")-Vector2(5,5), 0, Side.WHITE, self.assets[f"piece_queenW{self.piece_skin.value}"], "queen"),
+        # ])
+        # fmt: on
 
         self.nav: TurnNavigation = TurnNavigation(self.widgets.pieces.pieces)
 
