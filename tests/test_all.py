@@ -112,7 +112,6 @@ class TestPieceMovement:
             at("g7/h7"),
         )  # Qx(g7,h7)
 
-    @pytest.mark.xfail(reason="known bug")
     def test_triplecapture(self):
         board = widgets.Pieces(
             [

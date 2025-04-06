@@ -243,15 +243,22 @@ class Pieces(Widget):
         use with gs=None in testing when we create a board without visualization.
         """
         assert len(self.selected_pieces) == 1
+        assert self.selected_pieces[0] is only_selected
 
+        # move
         only_selected.move(point_x, point_y)
 
+        # capture overlapping pieces
+        to_remove = []  # avoid mutating list while iterating through it.
         for piece in self.pieces:
-            if piece == only_selected:
+            if piece is only_selected:
                 continue
 
             if only_selected.piece_collides(piece.get_x(), piece.get_y()):
-                self.pieces.remove(piece)
+                to_remove.append(piece)
+
+        for piece in to_remove:
+            self.pieces.remove(piece)
 
         # after moving, automatically deselect the piece and spinner
         only_selected.selected = False
