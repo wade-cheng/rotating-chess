@@ -3,6 +3,7 @@ import pytest
 import rotating_chess.compressjson as cj
 from rotating_chess import widgets
 from rotating_chess.pieces import Piece, Side
+from rotating_chess.locations import at
 
 
 class TestSaveFiles:
@@ -49,7 +50,7 @@ def standard_begin():
 
 @pytest.fixture
 def e4() -> Piece:
-    return Piece(225, 325, 0, Side.WHITE, None, "pawn")
+    return Piece(*at("e4"), 0, Side.WHITE, None, "pawn")
 
 
 class TestPromotion:
@@ -58,7 +59,7 @@ class TestPromotion:
         ps = widgets.Pieces([e4])
         ps.selected_pieces.append(e4)
         e4.selected = True
-        ps.move(e4, 225, 25, None)
+        ps.move(e4, *at("e8"), None)
         assert len(ps.pieces) == 1
         assert ps.pieces[0].get_piece_name() == "queen"
 
@@ -67,7 +68,7 @@ class TestPromotion:
         ps = widgets.Pieces([e4])
         ps.selected_pieces.append(e4)
         e4.selected = True
-        ps.move(e4, 325, 25, None)
+        ps.move(e4, *at("g8"), None)
         assert len(ps.pieces) == 1
         assert ps.pieces[0].get_piece_name() == "queen"
 
@@ -76,20 +77,20 @@ class TestPromotion:
         ps = widgets.Pieces([e4])
         ps.selected_pieces.append(e4)
         e4.selected = True
-        ps.move(e4, 225, 45, None)
+        ps.move(e4, *at("e8/e7"), None)
         assert len(ps.pieces) == 1
         assert ps.pieces[0].get_piece_name() == "queen"
 
 
 class TestPieceMovement:
     def test_Nc3(self, standard_begin):
-        assert can_move(standard_begin, (75, 375), (125, 275))
+        assert can_move(standard_begin, at("b1"), at("c3"))
 
     def test_Nxd2(self, standard_begin):
-        assert not can_move(standard_begin, (75, 375), (175.0, 325.0))
+        assert not can_move(standard_begin, at("b1"), at("d2"))
 
     def test_Rh5(self, standard_begin):
-        assert not can_move(standard_begin, (375, 375), (375.0, 175.0))
+        assert not can_move(standard_begin, at("h1"), at("h5"))
 
     def test_pawn_jump(self, standard_begin):
         """non-infinitely jumping pieces like pawns should be able to hop like standard knights."""
@@ -98,38 +99,36 @@ class TestPieceMovement:
         # Piece.can_move doesn't check for compilance with DistsAngles.
         assert can_move(
             standard_begin,
-            (225, 325),
+            at("e2"),
             (133.42074531670488, 287.1968043376545),
         )
 
     def test_doublecapture(self, standard_begin):
-        find_piece(standard_begin, 225, 325).move(225.0, 125.0)  # e->e6
-        find_piece(standard_begin, 175, 325).move(175.0, 225.0)  # d4
+        find_piece(standard_begin, *at("e2")).move(*at("e6"))  # e->e6
+        find_piece(standard_begin, *at("d2")).move(*at("d4"))  # d4
         assert can_move(
             standard_begin,
-            (175, 375),
-            (353.29714819722693, 69.69666404584422),
+            at("d1"),
+            at("g7/h7"),
         )  # Qx(g7,h7)
 
     @pytest.mark.xfail(reason="known bug")
     def test_triplecapture(self):
         board = widgets.Pieces(
             [
-                Piece(50, 50, 0, Side.BLACK, None, "pawn"),  # a7/b8
-                Piece(25, 25, 0, Side.BLACK, None, "rook"),  # a8
-                Piece(75, 25, 0, Side.BLACK, None, "knight"),  # b8
-                Piece(75, 125, 0.25, Side.WHITE, None, "queen"),  # b6
+                Piece(*at("a7/b8"), 0, Side.BLACK, None, "pawn"),
+                Piece(*at("a8"), 0, Side.BLACK, None, "rook"),
+                Piece(*at("b8"), 0, Side.BLACK, None, "knight"),
+                Piece(*at("b6"), 0.25, Side.WHITE, None, "queen"),
             ]
         )
         assert can_move(
             board,
-            (75, 125),
-            (49.598762448614224, 28.279903169723468),
+            at("b6"),
+            at("a8/b8"),
         )  # can capture all three
 
-        board.move(
-            find_piece(board, 75, 125), 49.598762448614224, 28.279903169723468, None
-        )  # do so
+        board.move(find_piece(board, *at("b6")), *at("a8/b8"), None)  # do so
 
         # only the queen should remain
         assert len(board.pieces) == 1
@@ -138,28 +137,23 @@ class TestPieceMovement:
     def test_phase(self, standard_begin):
         """
         infinitely jumping pieces should be not able to hop/phase through pieces to their destination.
-        rotchess save `eJzt1uFOwjAUBeBXWfobm/Z2XVtehRAydYEF3RAUNYR3t1MQmYuOrZAYzy+bLp7cHLabb8NW6TqbrLPlKi8LNoyY5IILNojeH/iL0WjDXvxf0v7u1R9MdUiL6V31VHEZS+0o0UpbZ5yq/jG/rR5Jf1zk2U02KdL76oIt0ueCbQdRLVDR10RxSKBfEkzokUzvkWTwmmT/nmTwomT/pij8C9W/KQreFPVvSgVvSvVvSgVvSgV4p/YJ1HmmZVnOm3aUaT3ScYLpP9K8yKezx6Yt1X6oeoYMUNV1vpqVi8ZN1X6wbyEBCnt4yrLmZdV+rloGBehrnhfTxm11ws94HBGgq3r/1KWseogK0VbtjVWd+qqHBGjs+PtWXfr6iBgPItgKtvortuJi/+nszvAVfAVfwVfwFXwFX8FXPyXCV/DV+X11JbgWZGNFUjgyNhEW4oK4IK6GDIgL4oK4IC6IC+JqQRmhOVktYxI6NkbHyefWMVw4RYkR/lo7m8Bj8BiDx+AxeAweg8fgMXgMHoPH4LHLecx/soddYk7YJTAZTAaTBRwJJoPJ/ovJvMe4NpWvvK60Fm6XL63j0vpAH6yldIZAMpCMgWQgGUgGkoFkIBlIBpKBZCDZRUmmuq4SkAwkOzfJxts3GM1Nuw==`
         """
-        find_piece(standard_begin, 225, 325).move(225.0, 225.0)  # move aside e-pawn
-        find_piece(standard_begin, 325, 325).move(
-            305.28514205477546, 257.09326707755986
-        )  # fmt:skip block queen with g pawn
         assert not can_move(
             standard_begin,
-            (175, 375),
-            (325.0, 225.0),
-        )  # test cannot phase
+            at("d1"),
+            at("d5"),
+        )
 
     def test_phase2(self, standard_begin):
         """
         infinitely jumping pieces should be not able to hop/phase through pieces to their destination.
         currently bugged.
         """
-        find_piece(standard_begin, 225, 325).move(225.0, 125.0)  # e->e6
-        find_piece(standard_begin, 175, 325).move(175.0, 225.0)  # d4
+        find_piece(standard_begin, *at("e2")).move(*at("e6"))  # e->e6
+        find_piece(standard_begin, *at("d2")).move(*at("d4"))  # d4
         assert not can_move(
             standard_begin,
-            (175, 375),
+            at("d1"),
             (315.9709686086502, 50.76677220010447),
         )  # Qx(g7,g8), but should NOT be possible
 
