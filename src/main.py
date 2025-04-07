@@ -12,8 +12,11 @@ from rotating_chess.widgets import MOUSE_HELD
 from rotating_chess import settings
 
 if sys.platform == "emscripten":
+    platform.document.getElementById("loading_notice").remove()
     platform.window.canvas.style.imageRendering = "pixelated"
-
+    platform.document.body.style.background = "#" + "".join(
+        hex(c)[2:] for c in settings.BACKGROUND_COLOR
+    )
 os.environ["DEBUG_ROTCHESS"] = "True"
 
 

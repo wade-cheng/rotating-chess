@@ -7,7 +7,7 @@ test:
 pygbag:
 	rm docs -rf
 	rm src/build -rf
-	uv run pygbag --build --template pygbag.tmpl --icon src/assets/favicon.png src/main.py
+	uv run pygbag --build --template pygbag.tmpl --ume_block 0 --icon src/assets/favicon.png src/main.py
 	mv src/build/web docs 
 
 run:
@@ -15,3 +15,10 @@ run:
 
 serve:
 	(cd docs && python -m http.server)
+
+clean:
+	rm docs -rf
+	rm src/build -rf
+	rm __pycache__ -rf
+	rm src/__pycache__ -rf
+	rm src/rotating_chess/__pycache__ -rf
