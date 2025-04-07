@@ -50,6 +50,7 @@ class GameState:
                 wself.nav_prev_btn = NavPrev(self.assets["nav_prev"], 400 + 4 + f_width, 300)
                 wself.nav_next_btn = NavNext(self.assets["nav_next"], 400 + 5 + f_width + p_width, 300)
                 wself.nav_last_btn = NavLast(self.assets["nav_last"], 400 + 6 + f_width + p_width + n_width, 300)
+                wself.nav_prog = NavProgressBar(400, 600, 200)
                 wself.exp_save = ExportSave(self.assets["download"], 415, 10, self.font)
                 wself.imp_save = ImportSave(self.assets["upload"], 540, 10, self.font)
             __dict__: dict[str, Widget]
@@ -90,6 +91,8 @@ class GameState:
 
 class TurnNavigation:
     """used to keep track of previous turns and has an API to navigate the board through them"""
+
+    # TODO: hmm. this can be a Widget maybe? because a NavProgbar depends on this now? or not.
 
     def __init__(self, pieces: list[Piece]) -> None:
         self.__turns: list[list[Piece]] = [copy.deepcopy(pieces)]
@@ -192,3 +195,6 @@ class TurnNavigation:
 
     def get_curr_turn(self) -> list[Piece]:
         return copy.deepcopy(self.__turns[self.__curr_turn])
+
+    def get_curr_turn_idx(self) -> int:
+        return self.__curr_turn

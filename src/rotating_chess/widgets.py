@@ -499,6 +499,7 @@ class ConfirmRot(Button):
             gs.nav.record_turn(gs.widgets.pieces.pieces)
 
 
+# TODO: these Nav* stuff can be in their own super object? idk.
 class NavFirst(Button):
     def __init__(self, surface: pygame.Surface, x: int, y: int) -> None:
         super().__init__(surface, x, y)
@@ -577,6 +578,33 @@ class NavLast(Button):
     def draw(self, screen: pygame.Surface, gs: GameState):
         if not gs.widgets.cancel_rot.is_visible():
             super().draw(screen, gs)
+
+
+class NavProgressBar(Widget):
+    def __init__(self, bottom: int, right: int, width: int, height: int = 10):
+        super().__init__()
+        self.__bottom = bottom
+        self.__right = right
+        self.__width = width
+        self.__height = height
+
+    def draw(self, screen: pygame.Surface, gs: GameState):
+        curr_len = gs.nav.get_curr_turn_idx() + 1
+        max_len = len(gs.nav)
+        len_proportion = curr_len / max_len
+
+        location = pygame.Rect(0, 0, self.__width * len_proportion, self.__height)
+        location.bottom = self.__bottom
+        location.left = self.__right - self.__width
+        pygame.draw.rect(
+            screen,
+            (255, 255, 255),
+            location,
+        )
+
+
+# TODO: add settings and help buttons at top that just show up in the right sidebar
+# maybe it can, like, grey/stripe out the main screen to mean no moves allowed?
 
 
 class ExportSave(Button):
