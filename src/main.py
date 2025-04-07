@@ -63,9 +63,12 @@ def draw(screen: pygame.Surface, gs: GameState):
 async def main():
     pygame.init()
 
+    pygame.display.set_caption("Rotating Chess")
     if sys.platform == "emscripten":
         screen = pygame.display.set_mode((600, 400))
     else:
+        pygame.display.set_icon(pygame.image.load("assets/favicon.png"))
+
         # screen = pygame.display.set_mode((600, 400), flags=0, vsync=1)
         screen = pygame.display.set_mode((600, 400), flags=pygame.SCALED, vsync=1)
 

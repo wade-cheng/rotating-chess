@@ -7,8 +7,11 @@ test:
 pygbag:
 	rm docs -rf
 	rm src/build -rf
-	uv run pygbag --build --template pygbag.tmpl src/main.py
+	uv run pygbag --build --template pygbag.tmpl --icon src/assets/favicon.png src/main.py
 	mv src/build/web docs 
 
 run:
 	(cd src && uv run main.py)
+
+serve:
+	(cd docs && python -m http.server)
