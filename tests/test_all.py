@@ -188,3 +188,5 @@ class TestPieceMovement:
 # TODO: can add another key to game save dict, d["forward_moves"] : list[moves] of one less length than list["save", the boards] where
 # d["forward_moves"][i] describes the move from d["save"][i] to [i+1]
 # this would be helpful for testing because we could just read in an old save file and be sure we're backwards compatible.
+
+# TODO: test save files up/download. start refactoring into more test files?
