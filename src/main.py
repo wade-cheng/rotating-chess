@@ -12,6 +12,7 @@ from rotating_chess.widgets import MOUSE_HELD
 from rotating_chess import settings
 
 if sys.platform == "emscripten":
+    platform.console.log(platform.document.getElementById("loading_notice"))
     platform.document.getElementById("loading_notice").remove()
     platform.window.canvas.style.imageRendering = "pixelated"
     platform.document.body.style.background = "#" + "".join(
