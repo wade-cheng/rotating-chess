@@ -635,9 +635,6 @@ class ExportSave(Button):
             f.write(s)
         if sys.platform == "emscripten":
             platform.window.MM.download(savepath)
-        else:
-            with open(savepath, "w") as f:
-                f.write(s)
 
     def handle_event(self, e: pygame.Event, gs: GameState, x: int, y: int) -> None:
         if e.type == pygame.MOUSEBUTTONDOWN:
