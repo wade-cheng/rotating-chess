@@ -607,6 +607,8 @@ class NavProgressBar(Widget):
 # maybe it can, like, grey/stripe out the main screen to mean no moves allowed?
 
 
+# TODO: make hover text an optional thing Buttons can have, and include for Nav buttons
+# then add setting toggle to turn off all hover text
 class ExportSave(Button):
     def __init__(
         self, surface: pygame.Surface, x: int, y: int, font: pygame.font.Font
