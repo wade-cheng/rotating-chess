@@ -17,6 +17,9 @@ class Screen(Enum):
     GAME = 3
 
 
+# TODO: add low health music? or music in general when:
+#    low pieces
+#    low timer
 class GameState:
     def __init__(self) -> None:
         self.playing: bool = True
