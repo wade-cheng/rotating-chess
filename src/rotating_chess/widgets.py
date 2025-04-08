@@ -681,7 +681,7 @@ class ImportSave(Button):
 
             if sys.platform == "emscripten":
                 save = platform.window.prompt("paste game save")
-                if save is not None and gs.nav.load_game_save(save, gs) is not None:
+                if save is not None and gs.nav.load_game_save(save, gs) is None:
                     platform.window.alert("invalid save")
             else:
                 if gs.nav.load_game_save(input("paste game save > "), gs) is not None:
