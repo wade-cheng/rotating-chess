@@ -537,12 +537,3 @@ class Piece:
             DistsAngle(itertools.count(start=-50, step=-50), angle=math.pi / 2)
         )
         self.__move_DAs = self.__capture_DAs
-
-
-if __name__ == "__main__":
-    d = DistsAngle(range(4), math.pi / 4)
-    # d = DistsAngle(itertools.count(step=1), math.pi / 8)
-    for x, y in d.get_offsets(0):
-        print(f"({x},{y})")
-        if abs(x) > 20 or abs(y) > 20:
-            break
