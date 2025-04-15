@@ -5,6 +5,7 @@ description = "A very normal game of chess."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "copykitten>=1.2.2",
     "mypy>=1.15.0",
     "pygame-ce>=2.5.3",
     "pygbag>=0.9.2",

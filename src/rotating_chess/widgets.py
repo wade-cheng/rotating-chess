@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pygame
+import copykitten
 import math
 import random
 import sys, platform
@@ -127,6 +128,8 @@ class Pieces(Widget):
                 if piece.coord_collides(x, y):
                     piece.selected = not piece.selected
                     if piece.selected:
+                        if piece.needs_init:
+                            piece.init()
                         gs.widgets.cancel_rot.reveal()
                         gs.widgets.movesel.reveal()
                         gs.widgets.pieces.selected_pieces.append(piece)
@@ -176,6 +179,7 @@ class Pieces(Widget):
         # disallow capturing own side. also find which pieces overlap the endpoint
         for piece in self.pieces:
             if piece == only_selected:
+                assert not only_selected.needs_init
                 continue
 
             if piece.piece_collides(point_x, point_y):
@@ -684,8 +688,10 @@ class ImportSave(Button):
                 if save is not None and gs.nav.load_game_save(save, gs) is None:
                     platform.window.alert("invalid save")
             else:
-                if gs.nav.load_game_save(input("paste game save > "), gs) is not None:
-                    print("invalid save")
+                if gs.nav.load_game_save(copykitten.paste(), gs) is None:
+                    print(
+                        "clipboard contents is invalid save. drag save file to screen or copy save to clipboard before clicking button."
+                    )
 
         elif e.type == pygame.MOUSEMOTION:
             if self.check_hovered(x, y):

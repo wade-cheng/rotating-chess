@@ -146,6 +146,7 @@ class TurnNavigation:
             self.__turns = reconstructed_save
             self.__curr_turn = len(self) - 1
             self.update_state(gs)
+            print(f"loaded {len(reconstructed_save)} turns")
             return "yay!"
             # return copy.deepcopy(reconstructed_save)
         except:

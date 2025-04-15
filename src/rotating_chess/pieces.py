@@ -100,13 +100,23 @@ class Piece:
         # the points are only used when only one piece is selected.
         # they are updated using the DAs on init and when we confirm a preview angle (ie update our angle)
         self.can_jump = False
+        # some of these below will only be created (un-None'd) when the piece is first moved.
+        # this speeds up loading a game save LOTS
+        # so, we require as an invariant that self.init() is called sometime before any
+        # forbidden methods are called. this should be enforced with assertions.
+        # this can (and probably is) done when a piece is clicked in normal game code,
+        # but for test code we need to hack it in somewhere else that's intuitive.
+        self.needs_init: bool = True
+        # set by init_movement
         self.__capture_DAs: list[DistsAngle] = []
+        # set by init_movement
         self.__move_DAs: list[DistsAngle] = []
-        self.__capture_points: list[tuple[float, float]] = []
+        # set by __init_capture_points
+        self.__capture_points: list[tuple[float, float]] | None = None
         self.__preview_capture_points: list[tuple[float, float]] | None = None
-        self.__move_points: list[tuple[float, float]] = []
+        # set by __init_move_points
+        self.__move_points: list[tuple[float, float]] | None = None
         self.__preview_move_points: list[tuple[float, float]] | None = None
-        self.__init()
 
     def __str__(self):
         return f"Piece(x={self.__x}, y={self.__y}, side={self.__side})"
@@ -184,6 +194,7 @@ class Piece:
             self.__set_nonpreview_blit_rect()
 
     def get_movable_points(self) -> list[tuple[float, float]]:
+        assert not self.needs_init
         return self.__capture_points + self.__move_points
 
     def __init_capture_points(self):
@@ -203,6 +214,7 @@ class Piece:
                 self.__capture_points.append(point)
 
     def update_capture_points(self):
+        assert not self.needs_init
         cap_points = self.__capture_points
         if self.__preview_capture_points is not None:
             cap_points = self.__preview_capture_points
@@ -234,6 +246,8 @@ class Piece:
                 self.__move_points.append(point)
 
     def update_move_points(self):
+        assert not self.needs_init
+
         move_points = self.__move_points
         if self.__preview_move_points is not None:
             move_points = self.__preview_move_points
@@ -281,6 +295,8 @@ class Piece:
         )
 
     def draw_capture_points(self, screen: pygame.Surface):
+        assert not self.needs_init
+
         points = self.__capture_points
         if self.__preview_capture_points is not None:
             points = self.__preview_capture_points
@@ -295,6 +311,8 @@ class Piece:
             )
 
     def draw_move_points(self, screen: pygame.Surface):
+        assert not self.needs_init
+
         points = self.__move_points
         if self.__preview_move_points is not None:
             points = self.__preview_move_points
@@ -309,6 +327,8 @@ class Piece:
             )
 
     def draw_guide_lines(self, screen: pygame.Surface):
+        assert not self.needs_init
+
         # v_hat is a "unit vector", with the unit length being the hitcircle radius.
         v_hat = pygame.math.Vector2(settings.HITCIRCLE_RADIUS, 0)
         for da in chain(self.__capture_DAs, self.__move_DAs):
@@ -366,6 +386,7 @@ class Piece:
             self.__preview_capture_points = []
 
     def confirm_preview(self):
+        assert not self.needs_init
         assert self.__preview_angle is not None and self.__preview_image is not None
 
         print(
@@ -395,10 +416,11 @@ class Piece:
 
         self.__set_nonpreview_blit_rect()
 
-    def __init(self):
+    def init(self):
         self.__init_movement()
         self.__init_capture_points()
         self.__init_move_points()
+        self.needs_init = False
 
     def __init_movement(self):
         """initializes DAs and changes whether the piece can jump from the default"""

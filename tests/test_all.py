@@ -39,6 +39,8 @@ def can_move(
 
     p = find_piece(ps, s_x, s_y)
     p.selected = True
+    if p.needs_init:
+        p.init()
     ps.selected_pieces.append(p)
     return ps.canmove(p, e_x, e_y)
 
