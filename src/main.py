@@ -18,7 +18,6 @@ if sys.platform == "emscripten":
     platform.document.body.style.background = "#" + "".join(
         hex(c)[2:] for c in settings.BACKGROUND_COLOR
     )
-os.environ["DEBUG_ROTCHESS"] = "True"
 
 
 def update(gs: GameState):

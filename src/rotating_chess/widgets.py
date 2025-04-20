@@ -9,6 +9,7 @@ from pathlib import Path
 from datetime import datetime
 import os
 
+from rotating_chess.debug import dprint
 from rotating_chess import settings
 from rotating_chess.pieces import Piece, Side
 
@@ -229,9 +230,7 @@ class Pieces(Widget):
         #     and if piece is less than 2*hitcirclerad away from line:
         #         in_the_way.append(piece)
 
-        debug = os.environ.get("DEBUG_ROTCHESS", "False")
-        if debug is not None and debug == "True":
-            print(f"inway: {in_the_way}, overlaps: {len(pieces_overlapping_endpoint)}")
+        dprint(f"inway: {in_the_way}, overlaps: {len(pieces_overlapping_endpoint)}")
         if in_the_way > 0:
             return False
         # if len(in_the_way) > len(pieces overlapping endpoint):

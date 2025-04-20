@@ -7,6 +7,7 @@ from enum import Enum
 from itertools import chain
 from collections.abc import Iterable
 
+from rotating_chess.debug import dprint
 from rotating_chess import settings
 
 
@@ -179,11 +180,7 @@ class Piece:
         strictly just moves self to x,y and updates self invariants.
         doesn't even check for promotion---should be done in Pieces.move().
         """
-        debug = os.environ.get("DEBUG_ROTCHESS", "False")
-        if debug is not None and debug == "True":
-            print(
-                f"moving {self.__piece_name} xy {self.__x}, {self.__y} to xy {x}, {y}"
-            )
+        dprint(f"moving {self.__piece_name} xy {self.__x}, {self.__y} to xy {x}, {y}")
 
         self.__x = x
         self.__y = y
@@ -389,7 +386,7 @@ class Piece:
         assert not self.needs_init
         assert self.__preview_angle is not None and self.__preview_image is not None
 
-        print(
+        dprint(
             f"rotating {self.get_x()},{self.get_y()}{self.__piece_name} {self.__angle}rad to {self.__preview_angle}rad"
         )
 

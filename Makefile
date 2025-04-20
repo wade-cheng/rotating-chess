@@ -11,6 +11,11 @@ pygbag:
 	mv src/build/web docs 
 
 run:
+	(cd src && uv run --env-file ../.env.dev main.py)
+
+runfast:
+	# running without debug on
+	# (NOTE: consider adding a .env.prod? but we don't really use it.)
 	(cd src && uv run main.py)
 
 serve:

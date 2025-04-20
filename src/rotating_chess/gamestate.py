@@ -4,6 +4,7 @@ from enum import Enum
 
 from pygame.math import Vector2
 
+from rotating_chess.debug import dprint
 from rotating_chess.pieces import *
 from rotating_chess.widgets import *
 from rotating_chess import settings
@@ -84,12 +85,12 @@ class GameState:
         # we might not want more though, to be honest. this works so it's fine.
         for file in os.listdir("assets"):
             if not file.endswith(".png") and not file.endswith(".svg"):
-                print(f"not loading {file} with load_img_assets()")
+                dprint(f"not loading {file} with load_img_assets()")
                 continue
             self.assets[file.removesuffix(".png").removesuffix(".svg")] = (
                 pygame.image.load(f"assets/{file}")
             )
-        print(f"loaded assets:\n{self.assets.keys()}")
+        dprint(f"loaded assets:\n{self.assets.keys()}")
 
 
 class TurnNavigation:
@@ -146,7 +147,7 @@ class TurnNavigation:
             self.__turns = reconstructed_save
             self.__curr_turn = len(self) - 1
             self.update_state(gs)
-            print(f"loaded {len(reconstructed_save)} turns")
+            dprint(f"loaded {len(reconstructed_save)} turns")
             return "yay!"
             # return copy.deepcopy(reconstructed_save)
         except:
