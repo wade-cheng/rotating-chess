@@ -114,15 +114,16 @@ class Pieces(Widget):
             moved_piece = False
             if len(self.selected_pieces) == 1:
                 only_selected = self.selected_pieces[0]
-                for point_x, point_y in only_selected.get_movable_points():
-                    if (
-                        ((x - point_x) ** 2 + (y - point_y) ** 2)
-                        < settings.HITCIRCLE_RADIUS**2
-                    ) and self.canmove(only_selected, point_x, point_y):
-                        self.move(only_selected, point_x, point_y, gs)
-                        # note: self.move() already removes the piece from selected, but we still have the pointer.
-                        moved_piece = True
-                        break
+                if not only_selected.previewing_rot():
+                    for point_x, point_y in only_selected.get_movable_points():
+                        if (
+                            ((x - point_x) ** 2 + (y - point_y) ** 2)
+                            < settings.HITCIRCLE_RADIUS**2
+                        ) and self.canmove(only_selected, point_x, point_y):
+                            self.move(only_selected, point_x, point_y, gs)
+                            # note: self.move() already removes the piece from selected, but we still have the pointer.
+                            moved_piece = True
+                            break
 
             if moved_piece:
                 gs.nav.record_turn(gs.widgets.pieces.pieces)
@@ -244,7 +245,8 @@ class Pieces(Widget):
 
     def move(
         self, only_selected: Piece, point_x: float, point_y: float, gs: GameState | None
-    ):
+    ):  # TODO: add two fields for passing in if we have capture/move perms. use this to disallow, eg, moving pawn to capture circle.
+        # tangentially, might be cool to draw move circle before capture circle, and then visualize capturecircle able to peek from under with crosshair.
         """
         moves only_selected to x,y, capturing any overlapping pieces and managing promotion.
         use with gs=None in testing when we create a board without visualization.

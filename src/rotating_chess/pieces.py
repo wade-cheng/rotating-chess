@@ -148,6 +148,9 @@ class Piece:
             settings.HITCIRCLE_RADIUS * 2
         ) ** 2
 
+    def previewing_rot(self) -> bool:
+        return self.__preview_angle is not None
+
     def get_x(self) -> float:
         return self.__x
 
