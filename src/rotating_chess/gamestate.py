@@ -122,6 +122,7 @@ class TurnNavigation:
 
         if let Some ps, then ps is not an alias to any other ps. i.e., mutate as much as you'd like.
         """
+        # TODO: optimize space by switching to binary format?
         try:
             s = s.strip()
             j = json_decompress(s)
