@@ -5,10 +5,12 @@ test:
 	uv run pytest -v --doctest-modules src/rotating_chess/*.py tests
 	
 pygbag:
-	rm docs -rf
-	rm src/build -rf
+	# rm docs -rf
+	# rm src/build -rf
+	make clean
 	uv run pygbag --build --template pygbag.tmpl --ume_block 0 --icon src/assets/favicon.png src/main.py
 	mv src/build/web docs 
+	cp hero-speak.ttf docs
 
 run:
 	(cd src && uv run --env-file ../.env.dev main.py)
