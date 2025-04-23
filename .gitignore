@@ -6,3 +6,4 @@ game_saves
 .venv
 .pytest_cache
 src/rotating_chess/rotating_chess.egg-info
+.vscode
