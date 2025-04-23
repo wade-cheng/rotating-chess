@@ -19,6 +19,11 @@ from typing import TYPE_CHECKING
 
 # from gamestate import GameState
 
+if sys.platform not in ["emscripten", "wasi"]:
+    import importlib
+
+    importlib.import_module("copykitten")
+
 if TYPE_CHECKING:
     from rotating_chess.gamestate import GameState
 
