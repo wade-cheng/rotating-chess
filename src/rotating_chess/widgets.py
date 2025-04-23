@@ -406,6 +406,7 @@ class MoveSelector(Widget):
     def selected_angle(self) -> float:
         """requires a point to be selected. returns the selected angle in radians in the range (-pi, pi).
         uses `-1 * math.atan2(y, x)` to invert the 'upside-downnedness' of topleft (0,0) coordinate system positioning.
+        also rotates it -90 deg to make "up" "up".
         """
         assert self.__selected_point is not None
 
@@ -413,7 +414,7 @@ class MoveSelector(Widget):
         x = self.__selected_point[0] - self.__center[0]
         # not sure why this is opposite of the convention that I know of but whatever, I can just invert it
         # NOTE: it was because I forgot pygame considers positive x to be facing "down." whoops.
-        return -1 * math.atan2(y, x)
+        return -1 * math.atan2(y, x) - math.radians(90)
 
     def get_selected_point(self) -> tuple[int, int] | None:
         return self.__selected_point
