@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pygame
-import copykitten
 import math
 import random
 import sys, platform
