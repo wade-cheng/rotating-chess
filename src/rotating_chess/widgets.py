@@ -637,7 +637,7 @@ class ExportSave(Button):
         savedir = Path("game_saves")
         savedir.mkdir(parents=True, exist_ok=True)
 
-        savepath = f"game_saves/rotchess_save_{datetime.now().isoformat().replace(':', '').split('.')[0]}"
+        savepath = f"game_saves/rotchess_save_{datetime.now().isoformat().replace(':', '').split('.')[0]}.txt"
 
         with open(savepath, "w") as f:
             f.write(s)
