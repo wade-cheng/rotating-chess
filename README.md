@@ -9,6 +9,8 @@ Check out example games in `/dist_assets/example_game*`.
 ### play
 https://wade-cheng.is-a.dev/rotating-chess/
 
+There's no perfect remote multiplayer solution right now. My current recommendation is, hilariously enough, to play through a Zoom screenshare's "remote control" feature.
+
 ### attributions
 
 Chess pieces from https://opengameart.org/content/chess-pieces-and-a-board
